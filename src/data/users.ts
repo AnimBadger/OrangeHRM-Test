@@ -9,13 +9,3 @@ export const invalidCredentials: UserCredentials = {
   username: 'wrong',
   password: 'wrong',
 };
-
-export const wrongUsername: UserCredentials = {
-  username: 'wrong',
-  password: 'admin123',
-};
-
-export const wrongPassword: UserCredentials = {
-  username: 'Admin',
-  password: 'wrong',
-};

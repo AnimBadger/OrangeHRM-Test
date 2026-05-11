@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { ROUTES, LABELS } from '@data/constants';
+import { ROUTES, LABELS, MESSAGES } from '@data/constants';
 import logger from '@utils/logger';
 
 export class SocialLink {
@@ -27,6 +27,11 @@ export class LoginPage extends BasePage {
   readonly socialLinksContainer: Locator;
   readonly socialLinks: SocialLink[];
   readonly requiredFieldErrors: Locator;
+  readonly forgotPasswordTitle: Locator;
+  readonly resetUsernameInput: Locator;
+  readonly resetPasswordButton: Locator;
+  readonly cancelButton: Locator;
+  readonly resetSuccessMessage: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -38,6 +43,15 @@ export class LoginPage extends BasePage {
     this.orangeHrmLogo = page.locator('.orangehrm-login-branding img');
     this.socialLinksContainer = page.locator('.orangehrm-login-footer-sm');
     this.requiredFieldErrors = page.locator('.oxd-input-group span.oxd-text');
+    this.forgotPasswordTitle = page.locator('.orangehrm-forgot-password-title');
+    this.resetUsernameInput = page.locator(
+      '.orangehrm-forgot-password-container input[name="username"]',
+    );
+    this.resetPasswordButton = page.locator('button[type="submit"]');
+    this.cancelButton = page.locator('button:has-text("Cancel")');
+    this.resetSuccessMessage = page
+      .locator('.oxd-text--p')
+      .filter({ hasText: MESSAGES.resetEmailSent });
 
     this.socialLinks = [
       new SocialLink(
@@ -113,5 +127,41 @@ export class LoginPage extends BasePage {
 
   async areSocialLinksVisible(): Promise<boolean> {
     return this.isVisible(this.socialLinksContainer);
+  }
+
+  async clickForgotPassword(): Promise<void> {
+    logger.info('Clicking forgot password link');
+    await this.click(this.forgotPasswordLink);
+    await this.waitForPageLoad();
+  }
+
+  async submitForgotPassword(username: string): Promise<void> {
+    logger.info(`Submitting forgot password for username: ${username}`);
+    await this.fill(this.resetUsernameInput, username);
+    await this.click(this.resetPasswordButton);
+  }
+
+  async submitForgotPasswordWithoutWait(username: string): Promise<void> {
+    logger.info(`Submitting forgot password (no wait) for username: ${username}`);
+    await this.fill(this.resetUsernameInput, username);
+    await this.page.locator('button[type="submit"]').click({ noWaitAfter: true });
+  }
+
+  async clickCancel(): Promise<void> {
+    logger.info('Clicking cancel on forgot password');
+    await this.click(this.cancelButton);
+    await this.waitForPageLoad();
+  }
+
+  async getForgotPasswordTitle(): Promise<string> {
+    return this.getText(this.forgotPasswordTitle);
+  }
+
+  async getResetSuccessMessage(): Promise<string> {
+    return this.getText(this.resetSuccessMessage);
+  }
+
+  async isForgotPasswordPage(): Promise<boolean> {
+    return this.isVisible(this.forgotPasswordTitle);
   }
 }
