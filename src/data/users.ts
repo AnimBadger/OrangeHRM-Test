@@ -1,17 +1,21 @@
-import type { TestUser } from '@types/index';
+import type { UserCredentials } from '@typedefs/index';
 
-export const testUsers: Record<string, TestUser> = {
-  admin: {
-    role: 'admin',
-    credentials: {
-      username: 'Admin',
-      password: 'admin123',
-    },
-  },
+export const validCredentials: UserCredentials = {
+  username: 'Admin',
+  password: 'admin123',
 };
 
-export const apiEndpoints = {
-  login: '/auth/login',
-  employees: '/pim/employees',
-  candidates: '/recruitment/candidates',
+export const invalidCredentials: UserCredentials = {
+  username: 'wrong',
+  password: 'wrong',
+};
+
+export const wrongUsername: UserCredentials = {
+  username: 'wrong',
+  password: 'admin123',
+};
+
+export const wrongPassword: UserCredentials = {
+  username: 'Admin',
+  password: 'wrong',
 };

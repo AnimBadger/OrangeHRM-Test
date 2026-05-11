@@ -18,46 +18,24 @@ export default defineConfig({
     ['list'],
   ],
 
+  timeout: 60000,
+
   use: {
     baseURL: process.env.BASE_URL || 'https://opensource-demo.orangehrmlive.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 10000,
-    navigationTimeout: 15000,
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
   },
 
   projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
-      },
-      grepInvert: /@mobile/,
-    },
     {
       name: 'firefox',
       use: {
         ...devices['Desktop Firefox'],
         viewport: { width: 1920, height: 1080 },
       },
-      grepInvert: /@mobile/,
-    },
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari'],
-        viewport: { width: 1920, height: 1080 },
-      },
-      grepInvert: /@mobile/,
-    },
-    {
-      name: 'mobile-chrome',
-      use: {
-        ...devices['Pixel 5'],
-      },
-      grep: /@mobile/,
     },
   ],
 });

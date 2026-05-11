@@ -3,7 +3,7 @@ import logger from '@utils/logger';
 import { TIMEOUTS } from '@data/constants';
 
 export abstract class BasePage {
-  protected readonly page: Page;
+  readonly page: Page;
 
   constructor(page: Page) {
     this.page = page;
@@ -13,11 +13,11 @@ export abstract class BasePage {
 
   async navigate(): Promise<void> {
     logger.info(`Navigating to: ${this.url}`);
-    await this.page.goto(this.url, { waitUntil: 'load' });
+    await this.page.goto(this.url, { waitUntil: 'domcontentloaded' });
   }
 
   async waitForPageLoad(): Promise<void> {
-    await this.page.waitForLoadState('load');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async waitForElement(element: Locator, timeout = TIMEOUTS.MEDIUM): Promise<void> {
@@ -59,7 +59,7 @@ export abstract class BasePage {
     await expect(this.page).toHaveTitle(expectedTitle);
   }
 
-  async verifyUrl(expectedUrl: string): Promise<void> {
+  async verifyUrl(expectedUrl: string | RegExp): Promise<void> {
     await expect(this.page).toHaveURL(expectedUrl);
   }
 

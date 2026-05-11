@@ -1,7 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { ROUTES } from '@data/constants';
-import type { Employee } from '@types/index';
+import type { Employee } from '@typedefs/index';
 import logger from '@utils/logger';
 
 export class PimPage extends BasePage {

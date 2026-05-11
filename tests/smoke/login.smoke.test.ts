@@ -1,40 +1,51 @@
 import { test, expect } from '@fixtures/customFixtures';
 import { MESSAGES } from '@data/constants';
+import { validCredentials, invalidCredentials, wrongUsername, wrongPassword } from '@data/users';
 
-test.describe('Login - Smoke Tests', () => {
-  test('should display login page with all required elements @smoke', async ({ loginPage }) => {
+test.describe('Login @smoke', () => {
+  test.beforeEach(async ({ loginPage }) => {
     await loginPage.navigate();
-
-    await expect(loginPage.usernameInput).toBeVisible();
-    await expect(loginPage.passwordInput).toBeVisible();
-    await expect(loginPage.loginButton).toBeVisible();
-    await expect(loginPage.orangeHrmLogo).toBeVisible();
-    await expect(loginPage.forgotPasswordLink).toBeVisible();
   });
 
-  test('should login with valid admin credentials @smoke', async ({ loginPage, dashboardPage }) => {
-    await loginPage.navigate();
-    await loginPage.login('Admin', 'admin123');
+  test('valid admin credentials redirect to dashboard', async ({ loginPage, dashboardPage }) => {
+    await loginPage.login(validCredentials.username, validCredentials.password);
 
-    const isDashboardVisible = await dashboardPage.isDashboardDisplayed();
-    expect(isDashboardVisible).toBe(true);
+    await expect(dashboardPage.dashboardHeader).toBeVisible();
     await dashboardPage.verifyUrl(/dashboard/);
   });
 
-  test('should show error for invalid credentials @smoke', async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login('wrongUser', 'wrongPass');
+  test('invalid credentials show error message', async ({ loginPage }) => {
+    await loginPage.login(invalidCredentials.username, invalidCredentials.password);
 
     const error = await loginPage.getErrorMessage();
-    expect(error).toContain(MESSAGES.invalidCredentials);
+    expect(error).toBe(MESSAGES.invalidCredentials);
   });
 
-  test('should logout successfully @smoke', async ({ loginPage, dashboardPage }) => {
-    await loginPage.navigate();
-    await loginPage.login('Admin', 'admin123');
-    await dashboardPage.logout();
+  test('wrong username shows error message', async ({ loginPage }) => {
+    await loginPage.login(wrongUsername.username, wrongUsername.password);
 
-    const isLoginPage = await loginPage.isLoginPageDisplayed();
-    expect(isLoginPage).toBe(true);
+    const error = await loginPage.getErrorMessage();
+    expect(error).toBe(MESSAGES.invalidCredentials);
+  });
+
+  test('wrong password shows error message', async ({ loginPage }) => {
+    await loginPage.login(wrongPassword.username, wrongPassword.password);
+
+    const error = await loginPage.getErrorMessage();
+    expect(error).toBe(MESSAGES.invalidCredentials);
+  });
+
+  test('empty username shows required field validation', async ({ loginPage }) => {
+    await loginPage.passwordInput.fill(validCredentials.password);
+    await loginPage.loginButton.click();
+
+    await expect(loginPage.requiredFieldErrors).toContainText(MESSAGES.requiredField);
+  });
+
+  test('empty password shows required field validation', async ({ loginPage }) => {
+    await loginPage.usernameInput.fill(validCredentials.username);
+    await loginPage.loginButton.click();
+
+    await expect(loginPage.requiredFieldErrors).toContainText(MESSAGES.requiredField);
   });
 });

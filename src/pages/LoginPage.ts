@@ -1,7 +1,21 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { ROUTES, LABELS } from '@data/constants';
 import logger from '@utils/logger';
+
+export class SocialLink {
+  readonly locator: Locator;
+  readonly expectedUrl: string;
+  readonly name: string;
+  readonly hrefExpectedUrl: string;
+
+  constructor(locator: Locator, expectedUrl: string, name: string, hrefExpectedUrl?: string) {
+    this.locator = locator;
+    this.expectedUrl = expectedUrl;
+    this.name = name;
+    this.hrefExpectedUrl = hrefExpectedUrl ?? expectedUrl;
+  }
+}
 
 export class LoginPage extends BasePage {
   readonly usernameInput: Locator;
@@ -10,6 +24,9 @@ export class LoginPage extends BasePage {
   readonly errorMessage: Locator;
   readonly forgotPasswordLink: Locator;
   readonly orangeHrmLogo: Locator;
+  readonly socialLinksContainer: Locator;
+  readonly socialLinks: SocialLink[];
+  readonly requiredFieldErrors: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -19,6 +36,32 @@ export class LoginPage extends BasePage {
     this.errorMessage = page.locator('.oxd-alert-content-text');
     this.forgotPasswordLink = page.locator('.orangehrm-login-forgot-header');
     this.orangeHrmLogo = page.locator('.orangehrm-login-branding img');
+    this.socialLinksContainer = page.locator('.orangehrm-login-footer-sm');
+    this.requiredFieldErrors = page.locator('.oxd-input-group span.oxd-text');
+
+    this.socialLinks = [
+      new SocialLink(
+        this.socialLinksContainer.locator('a').nth(0),
+        'linkedin.com/company/orangehrm',
+        'LinkedIn',
+      ),
+      new SocialLink(
+        this.socialLinksContainer.locator('a').nth(1),
+        'facebook.com/orangehrm',
+        'Facebook',
+      ),
+      new SocialLink(
+        this.socialLinksContainer.locator('a').nth(2),
+        'x.com/orangehrm',
+        'Twitter',
+        'twitter.com/orangehrm',
+      ),
+      new SocialLink(
+        this.socialLinksContainer.locator('a').nth(3),
+        'youtube.com/c/orangehrminc',
+        'YouTube',
+      ),
+    ];
   }
 
   get url(): string {
@@ -43,5 +86,32 @@ export class LoginPage extends BasePage {
 
   async verifyLoginPageTitle(): Promise<void> {
     await this.verifyPageTitle(LABELS.applicationName);
+  }
+
+  async getSocialLinkByName(name: string): Promise<SocialLink | undefined> {
+    return this.socialLinks.find((link) => link.name === name);
+  }
+
+  async clickSocialLink(socialLink: SocialLink): Promise<Page> {
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
+      socialLink.locator.click(),
+    ]);
+    await newPage.waitForLoadState('load');
+    return newPage;
+  }
+
+  async verifySocialLinkRedirects(socialLink: SocialLink): Promise<void> {
+    const newPage = await this.clickSocialLink(socialLink);
+    try {
+      const currentUrl = newPage.url().toLowerCase();
+      expect(currentUrl).toContain(socialLink.expectedUrl);
+    } finally {
+      await newPage.close();
+    }
+  }
+
+  async areSocialLinksVisible(): Promise<boolean> {
+    return this.isVisible(this.socialLinksContainer);
   }
 }

@@ -41,7 +41,7 @@ export const test = base.extend<Pages & Api & AuthFixtures>({
     await use(apiHelper);
   },
 
-  authenticatedPage: async ({ page, loginPage }, use) => {
+  authenticatedPage: async ({ loginPage }, use) => {
     const { username, password } = Environment.adminCredentials;
     await loginPage.navigate();
     await loginPage.login(username, password);

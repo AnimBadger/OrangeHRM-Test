@@ -1,18 +1,12 @@
 import { config as dotenvConfig } from 'dotenv';
 import path from 'path';
-import type { UserCredentials } from '@types/index';
+import type { UserCredentials } from '@typedefs/index';
 
 dotenvConfig({ path: path.resolve(__dirname, '../../env/.env') });
 
 export class Environment {
   static get baseUrl(): string {
     return process.env.BASE_URL || 'https://opensource-demo.orangehrmlive.com';
-  }
-
-  static get apiBaseUrl(): string {
-    return (
-      process.env.API_BASE_URL || 'https://opensource-demo.orangehrmlive.com/web/index.php/api/v2'
-    );
   }
 
   static get timeout(): number {

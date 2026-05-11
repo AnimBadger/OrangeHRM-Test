@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import type { Employee } from '@types/index';
+import type { Employee } from '@typedefs/index';
 
 export class DataGenerator {
   static generateEmployee(): Employee {
