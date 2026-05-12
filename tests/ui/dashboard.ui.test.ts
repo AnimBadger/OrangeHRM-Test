@@ -43,6 +43,16 @@ test.describe('Dashboard Profile @ui', () => {
     expect(await dashboardPage.isDropdownMenuVisible()).toBe(false);
   });
 
+  test('sidebar collapses on toggle and expands on second toggle', async ({ dashboardPage }) => {
+    expect(await dashboardPage.isSidebarCollapsed()).toBe(false);
+
+    await dashboardPage.toggleSidebar();
+    expect(await dashboardPage.isSidebarCollapsed()).toBe(true);
+
+    await dashboardPage.toggleSidebar();
+    expect(await dashboardPage.isSidebarCollapsed()).toBe(false);
+  });
+
   test('Logout option works from dropdown', async ({ dashboardPage, loginPage }) => {
     await dashboardPage.openUserDropdown();
     await dashboardPage.logoutOption.click();
