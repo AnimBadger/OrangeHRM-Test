@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/customFixtures';
 import { validCredentials } from '@data/users';
+import { DataGenerator } from '@utils/dataGenerator';
 
 test.describe('Admin Page @ui', () => {
   test.beforeEach(async ({ loginPage }) => {
@@ -25,7 +26,33 @@ test.describe('Admin Page @ui', () => {
     expect(menuTexts).toContain('Organization');
   });
 
-  test('system users search form is functional', async ({ adminPage }) => {
+  test('table displays expected columns', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    const headers = await adminPage.getTableHeaders();
+    const expectedColumns = ['Username', 'User Role', 'Employee Name', 'Status'];
+    for (const col of expectedColumns) {
+      expect(headers).toContain(col);
+    }
+  });
+
+  test('records found text is displayed after search', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    const recordsText = await adminPage.getRecordsFoundText();
+    expect(recordsText).toMatch(/\(\d+\)\s*Record(s)? Found/);
+  });
+});
+
+test.describe('Admin Search Filters @ui', () => {
+  test.beforeEach(async ({ loginPage }) => {
+    await loginPage.navigate();
+    await loginPage.login(validCredentials.username, validCredentials.password);
+  });
+
+  test('search by username and role returns matching results', async ({ adminPage }) => {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
 
@@ -40,7 +67,66 @@ test.describe('Admin Page @ui', () => {
     expect(cellText.toLowerCase()).toContain('admin');
   });
 
-  test('reset button clears search filters', async ({ adminPage }) => {
+  test('search by status only filters results', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    await adminPage.selectStatus('Enabled');
+    await adminPage.clickSearch();
+
+    const rowCount = await adminPage.getRowCount();
+    expect(rowCount).toBeGreaterThan(0);
+  });
+
+  test('search by user role only filters results', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    await adminPage.selectUserRole('ESS');
+    await adminPage.clickSearch();
+
+    const rowCount = await adminPage.getRowCount();
+    expect(rowCount).toBeGreaterThan(0);
+  });
+
+  test('non-existent username shows no records', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    await adminPage.searchByUsername(`zzz_${DataGenerator.generateRandomString(10)}`);
+    await adminPage.clickSearch();
+
+    const rowCount = await adminPage.getRowCount();
+    expect(rowCount).toBe(0);
+  });
+
+  test('empty search returns all records', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    await adminPage.clickSearch();
+
+    const rowCount = await adminPage.getRowCount();
+    expect(rowCount).toBeGreaterThan(0);
+  });
+
+  test('search with all filters combined returns results', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    await adminPage.searchByUsername('Admin');
+    await adminPage.selectUserRole('Admin');
+    await adminPage.selectStatus('Enabled');
+    await adminPage.clickSearch();
+
+    const rowCount = await adminPage.getRowCount();
+    expect(rowCount).toBeGreaterThan(0);
+
+    const cellText = await adminPage.getCellText(0, 1);
+    expect(cellText.toLowerCase()).toContain('admin');
+  });
+
+  test('reset restores all records after filtered search', async ({ adminPage }) => {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
 
@@ -59,23 +145,68 @@ test.describe('Admin Page @ui', () => {
     const isVisible = await adminPage.isAddUserButtonVisible();
     expect(isVisible).toBe(true);
   });
+});
 
-  test('table displays expected columns', async ({ adminPage }) => {
-    await adminPage.navigate();
-    await adminPage.loadSystemUsers();
-
-    const headers = await adminPage.getTableHeaders();
-    const expectedColumns = ['Username', 'User Role', 'Employee Name', 'Status'];
-    for (const col of expectedColumns) {
-      expect(headers).toContain(col);
-    }
+test.describe('Admin Edit and Delete @ui', () => {
+  test.beforeEach(async ({ loginPage }) => {
+    await loginPage.navigate();
+    await loginPage.login(validCredentials.username, validCredentials.password);
   });
 
-  test('records found text is displayed after search', async ({ adminPage }) => {
+  test('each row has edit and delete action buttons', async ({ adminPage }) => {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
 
-    const recordsText = await adminPage.getRecordsFoundText();
-    expect(recordsText).toMatch(/\(\d+\)\s*Record(s)? Found/);
+    const rowCount = await adminPage.getRowCount();
+    expect(rowCount).toBeGreaterThan(0);
+
+    expect(await adminPage.isEditButtonVisible(0)).toBe(true);
+    expect(await adminPage.isDeleteButtonVisible(0)).toBe(true);
+  });
+
+  test('edit form loads with user data', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    const username = await adminPage.getCellText(0, 1);
+    const userRole = await adminPage.getCellText(0, 2);
+
+    await adminPage.clickEditUser(0);
+    expect(await adminPage.isEditUserFormDisplayed()).toBe(true);
+
+    await adminPage.clickFormCancel();
+    await adminPage.loadSystemUsers();
+
+    const rowIndex = await adminPage.findUserInTableByUsername(username);
+    expect(rowIndex).toBeGreaterThanOrEqual(0);
+    expect(await adminPage.getCellText(rowIndex, 2)).toBe(userRole);
+  });
+
+  test('edit form fields are pre-populated', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    const username = await adminPage.getCellText(0, 1);
+
+    await adminPage.clickEditUser(0);
+    expect(await adminPage.isEditUserFormDisplayed()).toBe(true);
+
+    const inputValue = await adminPage.formUsernameInput.inputValue();
+    expect(inputValue.toLowerCase()).toBe(username.toLowerCase());
+
+    await adminPage.clickFormCancel();
+    expect(await adminPage.isAdminPageLoaded()).toBe(true);
+  });
+
+  test('cancel from edit form returns to user list', async ({ adminPage }) => {
+    await adminPage.navigate();
+    await adminPage.loadSystemUsers();
+
+    await adminPage.clickEditUser(0);
+    expect(await adminPage.isEditUserFormDisplayed()).toBe(true);
+
+    await adminPage.clickFormCancel();
+    expect(await adminPage.isAdminPageLoaded()).toBe(true);
+    expect(await adminPage.getRowCount()).toBeGreaterThan(0);
   });
 });

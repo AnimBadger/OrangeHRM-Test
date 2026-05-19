@@ -36,6 +36,13 @@ export class AdminPage extends BasePage {
   readonly successMessage: Locator;
   readonly employeeAutocompleteOptions: Locator;
   readonly addUserHeader: Locator;
+  readonly editUserHeader: Locator;
+
+  readonly editButtons: Locator;
+  readonly deleteButtons: Locator;
+  readonly confirmDeleteButton: Locator;
+  readonly cancelDeleteButton: Locator;
+  readonly deleteDialog: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -74,6 +81,13 @@ export class AdminPage extends BasePage {
     this.successMessage = page.locator('.oxd-toast');
     this.employeeAutocompleteOptions = page.locator('.oxd-autocomplete-option');
     this.addUserHeader = page.locator('h6:has-text("Add User")');
+    this.editUserHeader = page.locator('h6:has-text("Edit User")');
+
+    this.editButtons = page.locator('.oxd-table-cell-actions button:has(i.bi-pencil-fill)');
+    this.deleteButtons = page.locator('.oxd-table-cell-actions button:has(i.bi-trash)');
+    this.confirmDeleteButton = page.locator('button:has-text("Yes, Delete")');
+    this.cancelDeleteButton = page.locator('button:has-text("No, Cancel")');
+    this.deleteDialog = page.locator('.oxd-dialog-sheet');
   }
 
   get url(): string {
@@ -176,6 +190,19 @@ export class AdminPage extends BasePage {
     return this.isVisible(this.addUserHeader);
   }
 
+  async isEditUserFormDisplayed(): Promise<boolean> {
+    await this.waitForLoaderToDisappear();
+    return this.isVisible(this.editUserHeader);
+  }
+
+  async isEditButtonVisible(rowIndex: number): Promise<boolean> {
+    return this.isVisible(this.editButtons.nth(rowIndex));
+  }
+
+  async isDeleteButtonVisible(rowIndex: number): Promise<boolean> {
+    return this.isVisible(this.deleteButtons.nth(rowIndex));
+  }
+
   async selectFormUserRole(role: string): Promise<void> {
     logger.info(`Selecting user role: ${role}`);
     await this.click(this.formUserRoleDropdown);
@@ -229,8 +256,7 @@ export class AdminPage extends BasePage {
   }
 
   async clickFormSave(): Promise<void> {
-    await this.click(this.formSaveButton);
-    await this.page.waitForTimeout(500);
+    await this.formSaveButton.click();
   }
 
   async clickFormCancel(): Promise<void> {
@@ -272,6 +298,41 @@ export class AdminPage extends BasePage {
 
   async isSuccessMessageVisible(): Promise<boolean> {
     return this.isVisible(this.page.locator('.oxd-toast'), TIMEOUTS.MEDIUM);
+  }
+
+  async clickEditUser(rowIndex: number): Promise<void> {
+    logger.info(`Editing user at row ${rowIndex}`);
+    await this.click(this.editButtons.nth(rowIndex));
+    await this.waitForLoaderToDisappear();
+  }
+
+  async clickDeleteUser(rowIndex: number): Promise<void> {
+    logger.info(`Deleting user at row ${rowIndex}`);
+    await this.click(this.deleteButtons.nth(rowIndex));
+  }
+
+  async isDeleteDialogVisible(): Promise<boolean> {
+    return this.isVisible(this.deleteDialog);
+  }
+
+  async confirmDelete(): Promise<void> {
+    logger.info('Confirming delete');
+    await this.click(this.confirmDeleteButton);
+    await this.waitForLoaderToDisappear();
+  }
+
+  async cancelDelete(): Promise<void> {
+    logger.info('Cancelling delete');
+    await this.click(this.cancelDeleteButton);
+  }
+
+  async searchByEmployeeName(name: string): Promise<void> {
+    logger.info(`Searching by employee name: ${name}`);
+    await this.fill(this.searchEmployeeNameInput, name);
+    const option = this.employeeAutocompleteOptions.filter({ hasText: name });
+    if ((await option.count()) > 0) {
+      await option.first().click();
+    }
   }
 
   async findUserInTableByUsername(username: string): Promise<number> {
