@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/customFixtures';
 import { validCredentials } from '@data/users';
+import { ROUTES } from '@data/constants';
 
 test.describe('Dashboard Profile @ui', () => {
   test.beforeEach(async ({ loginPage }) => {
@@ -58,5 +59,53 @@ test.describe('Dashboard Profile @ui', () => {
     await dashboardPage.logoutOption.click();
 
     await expect(loginPage.loginButton).toBeVisible();
+  });
+});
+
+test.describe('User Dropdown Actions @ui', () => {
+  test.beforeEach(async ({ loginPage, dashboardPage }) => {
+    await loginPage.navigate();
+    await loginPage.login(validCredentials.username, validCredentials.password);
+  });
+
+  test('about modal displays company info', async ({ dashboardPage }) => {
+    await dashboardPage.clickAbout();
+
+    expect(await dashboardPage.isAboutModalVisible()).toBe(true);
+    expect(await dashboardPage.getAboutModalTitle()).toBe('About');
+
+    const info = await dashboardPage.getAboutInfo();
+    const keys = Object.keys(info);
+    const values = Object.values(info);
+    expect(keys.some((k) => k.toLowerCase().includes('company'))).toBe(true);
+    expect(keys.some((k) => k.toLowerCase().includes('version'))).toBe(true);
+    expect(keys.some((k) => /employee/i.test(k))).toBe(true);
+    expect(values.every((v) => v.length > 0)).toBe(true);
+  });
+
+  test('about modal closes', async ({ dashboardPage }) => {
+    await dashboardPage.clickAbout();
+    expect(await dashboardPage.isAboutModalVisible()).toBe(true);
+
+    await dashboardPage.closeAboutModal();
+    expect(await dashboardPage.isAboutModalVisible()).toBe(false);
+  });
+
+  test('support navigates to support page', async ({ dashboardPage }) => {
+    await dashboardPage.clickSupport();
+
+    await dashboardPage.verifyUrl(ROUTES.support);
+  });
+
+  test('change password navigates to update password page', async ({ dashboardPage }) => {
+    await dashboardPage.clickChangePassword();
+
+    await dashboardPage.verifyUrl(ROUTES.updatePassword);
+  });
+
+  test('profile name shows first and last name', async ({ dashboardPage }) => {
+    const name = await dashboardPage.getProfileName();
+    expect(name).toBeTruthy();
+    expect(name.split(' ').length).toBeGreaterThanOrEqual(2);
   });
 });

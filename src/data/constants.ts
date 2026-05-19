@@ -14,6 +14,8 @@ export const ROUTES = {
   recruitment: '/web/index.php/recruitment/viewCandidates',
   admin: '/web/index.php/admin/viewSystemUsers',
   adminSaveUser: '/web/index.php/admin/saveSystemUser',
+  updatePassword: '/web/index.php/pim/updatePassword',
+  support: '/web/index.php/help/support',
   forgotPassword: '/web/index.php/auth/requestPasswordReset',
   sendPasswordReset: '/web/index.php/auth/sendPasswordReset',
 };

@@ -4,12 +4,17 @@ import path from 'path';
 
 dotenvConfig({ path: path.resolve(__dirname, 'env/.env') });
 
+const browserConfig = {
+  ...devices['Desktop Firefox'],
+  viewport: { width: 1920, height: 1080 },
+};
+
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 4 : undefined,
+  workers: 1,
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results/test-results.json' }],
@@ -31,11 +36,29 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        viewport: { width: 1920, height: 1080 },
-      },
+      name: 'login',
+      testMatch: ['**/ui/login*', '**/ui/forgot*'],
+      use: browserConfig,
+    },
+    {
+      name: 'dashboard',
+      testMatch: ['**/ui/dashboard*', '**/ui/sidebar*', '**/ui/search*'],
+      use: browserConfig,
+    },
+    {
+      name: 'admin',
+      testMatch: ['**/ui/admin*'],
+      use: browserConfig,
+    },
+    {
+      name: 'smoke',
+      testMatch: ['**/smoke/*'],
+      use: browserConfig,
+    },
+    {
+      name: 'api',
+      testMatch: ['**/api/*'],
+      use: browserConfig,
     },
   ],
 });
