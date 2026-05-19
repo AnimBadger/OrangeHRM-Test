@@ -28,6 +28,12 @@ export class DashboardPage extends BasePage {
   readonly breadcrumbModule: Locator;
   readonly breadcrumbLevel: Locator;
 
+  readonly aboutDialog: Locator;
+  readonly aboutDialogCloseButton: Locator;
+  readonly aboutTitle: Locator;
+  readonly aboutInfoTitles: Locator;
+  readonly aboutInfoTexts: Locator;
+
   constructor(page: Page) {
     super(page);
     this.dashboardHeader = page.locator('.oxd-topbar-header-title');
@@ -54,6 +60,12 @@ export class DashboardPage extends BasePage {
     this.searchContainer = page.locator('.oxd-main-menu-search');
     this.breadcrumbModule = page.locator('.oxd-topbar-header-breadcrumb-module');
     this.breadcrumbLevel = page.locator('.oxd-topbar-header-breadcrumb-level');
+
+    this.aboutDialog = page.locator('.oxd-dialog-sheet');
+    this.aboutDialogCloseButton = page.locator('.oxd-dialog-close-button');
+    this.aboutTitle = page.locator('.orangehrm-main-title');
+    this.aboutInfoTitles = page.locator('.orangehrm-about-title');
+    this.aboutInfoTexts = page.locator('.orangehrm-about-text');
   }
 
   get url(): string {
@@ -184,5 +196,46 @@ export class DashboardPage extends BasePage {
 
   getBreadcrumbsConfig(): Record<string, { module: string; level?: string }> {
     return BREADCRUMBS;
+  }
+
+  async clickAbout(): Promise<void> {
+    await this.openUserDropdown();
+    await this.click(this.aboutOption);
+    await this.aboutTitle.waitFor({ state: 'visible', timeout: TIMEOUTS.ACTION_TIMEOUT });
+  }
+
+  async isAboutModalVisible(): Promise<boolean> {
+    return this.isVisible(this.aboutDialog);
+  }
+
+  async getAboutModalTitle(): Promise<string> {
+    return this.getText(this.aboutTitle);
+  }
+
+  async getAboutInfo(): Promise<Record<string, string>> {
+    await this.aboutInfoTitles
+      .first()
+      .waitFor({ state: 'attached', timeout: TIMEOUTS.ACTION_TIMEOUT });
+    const titles = await this.aboutInfoTitles.allTextContents();
+    const values = await this.aboutInfoTexts.allTextContents();
+    const info: Record<string, string> = {};
+    for (let i = 0; i < Math.min(titles.length, values.length); i++) {
+      info[titles[i].trim()] = values[i].trim();
+    }
+    return info;
+  }
+
+  async closeAboutModal(): Promise<void> {
+    await this.click(this.aboutDialogCloseButton);
+  }
+
+  async clickSupport(): Promise<void> {
+    await this.openUserDropdown();
+    await this.click(this.supportOption);
+  }
+
+  async clickChangePassword(): Promise<void> {
+    await this.openUserDropdown();
+    await this.click(this.changePasswordOption);
   }
 }
