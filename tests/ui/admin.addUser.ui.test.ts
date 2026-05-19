@@ -2,13 +2,20 @@ import { test, expect } from '@fixtures/customFixtures';
 import { validCredentials } from '@data/users';
 import { DataGenerator } from '@utils/dataGenerator';
 
+type AdminPage = {
+  navigate(): Promise<void>;
+  loadSystemUsers(): Promise<void>;
+  getRowCount(): Promise<number>;
+  getCellText(row: number, column: number): Promise<string>;
+};
+
 test.describe('Admin Add User @ui', () => {
   test.beforeEach(async ({ loginPage }) => {
     await loginPage.navigate();
     await loginPage.login(validCredentials.username, validCredentials.password);
   });
 
-  async function getFirstEmployeeName(adminPage: any): Promise<string> {
+  async function getFirstEmployeeName(adminPage: AdminPage): Promise<string> {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
     const rowCount = await adminPage.getRowCount();
