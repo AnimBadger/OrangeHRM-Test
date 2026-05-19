@@ -32,3 +32,27 @@ export interface SystemUser {
 export type UserRole = 'Admin' | 'ESS';
 
 export type BrowserName = 'chromium' | 'firefox' | 'webkit';
+
+export interface JobTitle {
+  title: string;
+  description?: string;
+  note?: string;
+}
+
+export interface PayGrade {
+  name: string;
+}
+
+export interface EmploymentStatus {
+  name: string;
+}
+
+export interface JobCategory {
+  name: string;
+}
+
+export interface WorkShift {
+  name: string;
+  from?: string;
+  to?: string;
+}

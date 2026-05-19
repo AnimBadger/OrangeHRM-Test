@@ -26,7 +26,7 @@ test.describe('Admin Add User @ui', () => {
   test('adds a new admin user and appears in the table', async ({ adminPage }) => {
     const employeeName = await getFirstEmployeeName(adminPage);
     const username = DataGenerator.generateRandomString(8);
-    const password = `Test@${DataGenerator.generateRandomString(6)}`;
+    const password = DataGenerator.generatePassword(10);
 
     await adminPage.clickAddUser();
     expect(await adminPage.isAddUserFormDisplayed()).toBe(true);
@@ -54,7 +54,7 @@ test.describe('Admin Add User @ui', () => {
   test('adds a new ESS user', async ({ adminPage }) => {
     const employeeName = await getFirstEmployeeName(adminPage);
     const username = `ess_${DataGenerator.generateRandomString(6)}`;
-    const password = `Test@${DataGenerator.generateRandomString(6)}`;
+    const password = DataGenerator.generatePassword(10);
 
     await adminPage.clickAddUser();
     expect(await adminPage.isAddUserFormDisplayed()).toBe(true);
@@ -80,7 +80,7 @@ test.describe('Admin Add User @ui', () => {
   test('adds a disabled user', async ({ adminPage }) => {
     const employeeName = await getFirstEmployeeName(adminPage);
     const username = `disabled_${DataGenerator.generateRandomString(6)}`;
-    const password = `Test@${DataGenerator.generateRandomString(6)}`;
+    const password = DataGenerator.generatePassword(10);
 
     await adminPage.clickAddUser();
     expect(await adminPage.isAddUserFormDisplayed()).toBe(true);
@@ -107,7 +107,7 @@ test.describe('Admin Add User @ui', () => {
   test('duplicate username shows error', async ({ adminPage }) => {
     const employeeName = await getFirstEmployeeName(adminPage);
     const username = `dup_${DataGenerator.generateRandomString(6)}`;
-    const password = `Test@${DataGenerator.generateRandomString(6)}`;
+    const password = DataGenerator.generatePassword(10);
 
     await adminPage.clickAddUser();
     expect(await adminPage.isAddUserFormDisplayed()).toBe(true);
@@ -130,8 +130,7 @@ test.describe('Admin Add User @ui', () => {
       employeeName,
     );
 
-    const errors = await adminPage.getFormErrorMessages();
-    expect(errors.some((e) => /already exists/i.test(e))).toBe(true);
+    await expect(adminPage.page.getByText('Already exists')).toBeVisible();
   });
 
   test('shows validation errors when required fields are empty', async ({ adminPage }) => {
@@ -195,7 +194,7 @@ test.describe('Admin Add User @ui', () => {
   test('creates a user and can be found by exact username search', async ({ adminPage }) => {
     const employeeName = await getFirstEmployeeName(adminPage);
     const username = `search_${DataGenerator.generateRandomString(6)}`;
-    const password = `Test@${DataGenerator.generateRandomString(6)}`;
+    const password = DataGenerator.generatePassword(10);
 
     await adminPage.clickAddUser();
     expect(await adminPage.isAddUserFormDisplayed()).toBe(true);

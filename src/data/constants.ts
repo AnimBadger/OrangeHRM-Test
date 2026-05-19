@@ -18,6 +18,11 @@ export const ROUTES = {
   support: '/web/index.php/help/support',
   forgotPassword: '/web/index.php/auth/requestPasswordReset',
   sendPasswordReset: '/web/index.php/auth/sendPasswordReset',
+  adminJobTitles: '/web/index.php/admin/viewJobTitleList',
+  adminPayGrades: '/web/index.php/admin/viewPayGrades',
+  adminEmploymentStatus: '/web/index.php/admin/employmentStatus',
+  adminJobCategories: '/web/index.php/admin/jobCategory',
+  adminWorkShifts: '/web/index.php/admin/workShift',
 };
 
 export const SIDEBAR_MENU_ITEMS: Record<string, string> = {
