@@ -2,15 +2,18 @@ export const TIMEOUTS = {
   SHORT: 5000,
   MEDIUM: 10000,
   LONG: 30000,
+  ACTION_TIMEOUT: 10000,
 };
 
 export const ROUTES = {
   login: '/web/index.php/auth/login',
   dashboard: '/web/index.php/dashboard/index',
   pim: '/web/index.php/pim/viewEmployeeList',
+  pimAddEmployee: '/web/index.php/pim/addEmployee',
   leave: '/web/index.php/leave/viewLeaveList',
   recruitment: '/web/index.php/recruitment/viewCandidates',
   admin: '/web/index.php/admin/viewSystemUsers',
+  adminSaveUser: '/web/index.php/admin/saveSystemUser',
   forgotPassword: '/web/index.php/auth/requestPasswordReset',
   sendPasswordReset: '/web/index.php/auth/sendPasswordReset',
 };

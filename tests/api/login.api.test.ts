@@ -27,7 +27,7 @@ test.describe('Login API @api', () => {
     expect(firstPostText).toContain('Ferrari');
   });
 
-  test('invalid credentials should be rejected by server', async ({ apiHelper }) => {
+  test('invalid credentials rejected by server', async ({ apiHelper }) => {
     const response = await apiHelper.loginSubmit(
       invalidCredentials.username,
       invalidCredentials.password,

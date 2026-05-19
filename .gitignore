@@ -9,3 +9,4 @@ allure-report/
 .vscode/
 .idea/
 *.tsbuildinfo
+AGENTS.md

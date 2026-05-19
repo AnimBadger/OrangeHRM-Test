@@ -2,6 +2,7 @@ import { test as base, expect } from '@playwright/test';
 import { LoginPage } from '@pages/LoginPage';
 import { DashboardPage } from '@pages/DashboardPage';
 import { PimPage } from '@pages/PimPage';
+import { AdminPage } from '@pages/AdminPage';
 import { ApiHelper } from '@utils/apiHelper';
 import { Environment } from '@config/environment';
 import logger from '@utils/logger';
@@ -10,6 +11,7 @@ type Pages = {
   loginPage: LoginPage;
   dashboardPage: DashboardPage;
   pimPage: PimPage;
+  adminPage: AdminPage;
 };
 
 type Api = {
@@ -34,6 +36,11 @@ export const test = base.extend<Pages & Api & AuthFixtures>({
   pimPage: async ({ page }, use) => {
     const pimPage = new PimPage(page);
     await use(pimPage);
+  },
+
+  adminPage: async ({ page }, use) => {
+    const adminPage = new AdminPage(page);
+    await use(adminPage);
   },
 
   apiHelper: async ({ request }, use) => {

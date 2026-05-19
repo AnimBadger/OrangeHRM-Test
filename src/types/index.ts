@@ -21,4 +21,14 @@ export interface NavigationItem {
   subItems?: NavigationItem[];
 }
 
+export interface SystemUser {
+  userRole: 'Admin' | 'ESS';
+  employeeName: string;
+  status: 'Enabled' | 'Disabled';
+  username: string;
+  password: string;
+}
+
+export type UserRole = 'Admin' | 'ESS';
+
 export type BrowserName = 'chromium' | 'firefox' | 'webkit';

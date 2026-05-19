@@ -53,7 +53,7 @@ test.describe('Dashboard Profile @ui', () => {
     expect(await dashboardPage.isSidebarCollapsed()).toBe(false);
   });
 
-  test('Logout option works from dropdown', async ({ dashboardPage, loginPage }) => {
+  test('logout option works from dropdown', async ({ dashboardPage, loginPage }) => {
     await dashboardPage.openUserDropdown();
     await dashboardPage.logoutOption.click();
 
