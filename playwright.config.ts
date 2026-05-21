@@ -37,17 +37,17 @@ export default defineConfig({
   projects: [
     {
       name: 'login',
-      testMatch: ['**/ui/login*', '**/ui/forgot*'],
+      testMatch: ['ui/login/**'],
       use: browserConfig,
     },
     {
       name: 'dashboard',
-      testMatch: ['**/ui/dashboard*', '**/ui/sidebar*', '**/ui/search*'],
+      testMatch: ['ui/dashboard/**'],
       use: browserConfig,
     },
     {
       name: 'admin',
-      testMatch: ['**/ui/admin*'],
+      testMatch: ['ui/admin/**'],
       use: browserConfig,
     },
     {
