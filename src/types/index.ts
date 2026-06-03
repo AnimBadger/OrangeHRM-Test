@@ -56,3 +56,61 @@ export interface WorkShift {
   from?: string;
   to?: string;
 }
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  status: boolean;
+  userRoleId: number;
+  empNumber: number;
+}
+
+export interface ApiUser {
+  id: number;
+  userName: string;
+  deleted: boolean;
+  status: boolean;
+  employee: {
+    empNumber: number;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
+    employeeId?: string;
+    terminationId?: number | null;
+  };
+  userRole: {
+    id: number;
+    name: string;
+    displayName: string;
+  };
+}
+
+export interface ApiListResponse<T> {
+  data: T[];
+  meta: { total: number };
+  rels: string[];
+}
+
+export interface ApiSingleResponse<T> {
+  data: T;
+}
+
+export interface ApiErrorDetail {
+  field?: string;
+  message: string;
+}
+
+export interface ApiErrorResponse {
+  error?: {
+    status: string;
+    message: string;
+  };
+  errors?: ApiErrorDetail[];
+}
+
+export interface UserRoleOption {
+  id: number;
+  name: string;
+  displayName: string;
+  isAssignable: boolean;
+}

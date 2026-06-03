@@ -26,6 +26,7 @@ type Pages = {
 
 type Api = {
   apiHelper: ApiHelper;
+  authenticatedApiHelper: ApiHelper;
 };
 
 type AuthFixtures = {
@@ -80,6 +81,17 @@ export const test = base.extend<Pages & Api & AuthFixtures>({
 
   apiHelper: async ({ request }, use) => {
     const apiHelper = new ApiHelper(request);
+    await use(apiHelper);
+  },
+
+  authenticatedApiHelper: async ({ request }, use) => {
+    const apiHelper = new ApiHelper(request);
+    const { username, password } = Environment.adminCredentials;
+    const loginRes = await apiHelper.loginAndFollowRedirect(username, password);
+    if (!loginRes.ok()) {
+      throw new Error(`API auth setup failed: ${loginRes.status()} ${loginRes.url()}`);
+    }
+    logger.info('Authenticated API helper fixture ready');
     await use(apiHelper);
   },
 

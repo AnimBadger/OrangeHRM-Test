@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/customFixtures';
 import { validCredentials, invalidCredentials } from '@data/users';
-import { buzzFeedResponse } from '@data/mockData';
+import { buzzFeedResponse } from '@data/buzzMocks';
 
 const buzzUrl =
   '**/web/index.php/api/v2/buzz/feed?limit=5&offset=0&sortOrder=DESC&sortField=share.createdAtUtc';
@@ -27,12 +27,13 @@ test.describe('Login API @api', () => {
     expect(firstPostText).toContain('Ferrari');
   });
 
-  test('invalid credentials rejected by server', async ({ apiHelper }) => {
+  test('invalid credentials redirects back to login', async ({ apiHelper }) => {
     const response = await apiHelper.loginSubmit(
       invalidCredentials.username,
       invalidCredentials.password,
     );
 
-    expect(response.ok()).not.toBeTruthy();
+    expect(response.status()).toBe(302);
+    expect(response.headers()['location']).toContain('/auth/login');
   });
 });

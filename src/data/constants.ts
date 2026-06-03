@@ -61,6 +61,11 @@ export const BREADCRUMBS: Record<string, { module: string; level?: string }> = {
   Dashboard: { module: 'Dashboard' },
 };
 
+export const API_ROUTES = {
+  adminUsers: '/web/index.php/api/v2/admin/users',
+  adminUsersValidate: '/web/index.php/api/v2/admin/validation/user-name',
+};
+
 export const MESSAGES = {
   invalidCredentials: 'Invalid credentials',
   requiredField: 'Required',

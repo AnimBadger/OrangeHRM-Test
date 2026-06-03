@@ -57,7 +57,7 @@ export default defineConfig({
     },
     {
       name: 'api',
-      testMatch: ['**/api/*'],
+      testMatch: ['api/**'],
       use: browserConfig,
     },
   ],
