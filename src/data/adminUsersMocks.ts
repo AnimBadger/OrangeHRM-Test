@@ -95,3 +95,33 @@ export const mockCreateUserMissingEmployeeError: ApiErrorResponse = {
     },
   ],
 };
+
+export const mockUpdateUserSuccess: ApiSingleResponse<ApiUser> = {
+  data: {
+    id: 42,
+    userName: 'updated_user',
+    deleted: false,
+    userRole: { id: 2, name: 'ESS', displayName: 'ESS' },
+    status: false,
+    employee: {
+      empNumber: 8,
+      firstName: 'John',
+      lastName: 'Smith',
+      employeeId: 'EMP002',
+      terminationId: null,
+    },
+  },
+};
+
+export const mockUpdateUserDuplicateError: ApiErrorResponse = {
+  error: {
+    status: '422',
+    message: 'Invalid Parameter',
+  },
+  errors: [
+    {
+      field: 'username',
+      message: 'Already exists',
+    },
+  ],
+};

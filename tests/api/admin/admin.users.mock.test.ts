@@ -6,6 +6,8 @@ import {
   mockCreateUserDuplicateError,
   mockCreateUserValidationError,
   mockCreateUserMissingEmployeeError,
+  mockUpdateUserSuccess,
+  mockUpdateUserDuplicateError,
 } from '@data/adminUsersMocks';
 
 test.describe('Admin Users API Mocks @api', () => {
@@ -65,5 +67,26 @@ test.describe('Admin Users API Mocks @api', () => {
     expect(data.error!.status).toBe('BAD_REQUEST');
     expect(data.error!.message).toBe('Employee not found');
     expect(data.errors![0].field).toBe('empNumber');
+  });
+
+  test('update user success mock has expected data shape', () => {
+    const data = mockUpdateUserSuccess.data;
+
+    expect(data).toBeDefined();
+    expect(data.id).toBe(42);
+    expect(data.userName).toBe('updated_user');
+    expect(data.status).toBe(false);
+    expect(data.deleted).toBe(false);
+    expect(data.userRole.name).toBe('ESS');
+    expect(data.employee.empNumber).toBe(8);
+  });
+
+  test('update duplicate username error mock has expected shape', () => {
+    const data: ApiErrorResponse = mockUpdateUserDuplicateError;
+
+    expect(data.error).toBeDefined();
+    expect(data.error!.status).toBe('422');
+    expect(data.errors).toHaveLength(1);
+    expect(data.errors![0].field).toBe('username');
   });
 });

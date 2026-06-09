@@ -1,6 +1,11 @@
 import { test, expect } from '@fixtures/customFixtures';
 import { DataGenerator } from '@utils/dataGenerator';
-import type { CreateUserRequest, ApiListResponse, ApiUser } from '@typedefs/index';
+import type {
+  CreateUserRequest,
+  UpdateUserRequest,
+  ApiListResponse,
+  ApiUser,
+} from '@typedefs/index';
 
 type ResponseRecord = {
   scenario: string;
@@ -174,5 +179,131 @@ test.describe('Admin Users API @api', () => {
     expect(body.data.status).toBe(false);
 
     await authenticatedApiHelper.deleteUsers([body.data.id]);
+  });
+
+  test('updates a user role to ESS', async ({ authenticatedApiHelper }) => {
+    const data: CreateUserRequest = {
+      username: `update_${DataGenerator.generateRandomString(6).toLowerCase()}`,
+      password: `Test${DataGenerator.generateRandomString(4)}1!`,
+      status: true,
+      userRoleId: 1,
+      empNumber,
+    };
+
+    const createRes = await authenticatedApiHelper.createUser(data);
+    const createBody = await createRes.json();
+    const userId = createBody.data.id;
+
+    const updateData: UpdateUserRequest = {
+      username: data.username,
+      password: `Test${DataGenerator.generateRandomString(4)}1!`,
+      status: true,
+      userRoleId: 2,
+      empNumber,
+      changePassword: true,
+    };
+
+    const updateRes = await authenticatedApiHelper.updateUser(userId, updateData);
+    const updateBody = await updateRes.json();
+
+    responses.push({
+      scenario: 'update user role to ESS',
+      status: updateRes.status(),
+      body: updateBody,
+      ok: updateRes.ok(),
+    });
+
+    expect(updateRes.ok()).toBeTruthy();
+    expect(updateRes.status()).toBe(200);
+    expect(updateBody.data.userRole.name).toBe('ESS');
+
+    await authenticatedApiHelper.deleteUsers([userId]);
+  });
+
+  test('updates a user status to disabled', async ({ authenticatedApiHelper }) => {
+    const data: CreateUserRequest = {
+      username: `updstatus_${DataGenerator.generateRandomString(6).toLowerCase()}`,
+      password: `Test${DataGenerator.generateRandomString(4)}1!`,
+      status: true,
+      userRoleId: 1,
+      empNumber,
+    };
+
+    const createRes = await authenticatedApiHelper.createUser(data);
+    const createBody = await createRes.json();
+    const userId = createBody.data.id;
+
+    const updateData: UpdateUserRequest = {
+      username: data.username,
+      password: `Test${DataGenerator.generateRandomString(4)}1!`,
+      status: false,
+      userRoleId: 1,
+      empNumber,
+      changePassword: true,
+    };
+
+    const updateRes = await authenticatedApiHelper.updateUser(userId, updateData);
+    const updateBody = await updateRes.json();
+
+    responses.push({
+      scenario: 'update user status to disabled',
+      status: updateRes.status(),
+      body: updateBody,
+      ok: updateRes.ok(),
+    });
+
+    expect(updateRes.ok()).toBeTruthy();
+    expect(updateRes.status()).toBe(200);
+    expect(updateBody.data.status).toBe(false);
+
+    await authenticatedApiHelper.deleteUsers([userId]);
+  });
+
+  test('rejects update to duplicate username', async ({ authenticatedApiHelper }) => {
+    const username1 = `upddup_${DataGenerator.generateRandomString(6).toLowerCase()}`;
+    const username2 = `upddup_${DataGenerator.generateRandomString(6).toLowerCase()}`;
+    const password = `Test${DataGenerator.generateRandomString(4)}1!`;
+
+    const user1 = await authenticatedApiHelper.createUser({
+      username: username1,
+      password,
+      status: true,
+      userRoleId: 1,
+      empNumber,
+    });
+    const user1Body = await user1.json();
+
+    const user2 = await authenticatedApiHelper.createUser({
+      username: username2,
+      password,
+      status: true,
+      userRoleId: 1,
+      empNumber,
+    });
+    const user2Body = await user2.json();
+
+    const dupUpdate: UpdateUserRequest = {
+      username: username1,
+      password: `Test${DataGenerator.generateRandomString(4)}1!`,
+      status: true,
+      userRoleId: 1,
+      empNumber,
+      changePassword: true,
+    };
+
+    const updateRes = await authenticatedApiHelper.updateUser(user2Body.data.id, dupUpdate);
+    const updateBody = await updateRes.json();
+
+    responses.push({
+      scenario: 'reject update to duplicate username',
+      status: updateRes.status(),
+      body: updateBody,
+      ok: updateRes.ok(),
+    });
+
+    expect(updateRes.ok()).not.toBeTruthy();
+    expect(updateRes.status()).toBe(422);
+
+    await authenticatedApiHelper.deleteUsers([user1Body.data.id, user2Body.data.id]);
   });
 });

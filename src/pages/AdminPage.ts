@@ -256,7 +256,9 @@ export class AdminPage extends BasePage {
   }
 
   async clickFormSave(): Promise<void> {
+    logger.info('Clicking form save button');
     await this.formSaveButton.click();
+    await this.waitForLoaderToDisappear();
   }
 
   async clickFormCancel(): Promise<void> {

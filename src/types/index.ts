@@ -65,6 +65,15 @@ export interface CreateUserRequest {
   empNumber: number;
 }
 
+export interface UpdateUserRequest {
+  username: string;
+  password?: string;
+  status: boolean;
+  userRoleId: number;
+  empNumber: number;
+  changePassword: boolean;
+}
+
 export interface ApiUser {
   id: number;
   userName: string;

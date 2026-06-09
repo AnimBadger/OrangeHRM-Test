@@ -1,7 +1,7 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
 import { Environment } from '@config/environment';
 import { API_ROUTES } from '@data/constants';
-import type { CreateUserRequest } from '@typedefs/index';
+import type { CreateUserRequest, UpdateUserRequest } from '@typedefs/index';
 import logger from './logger';
 
 export class ApiHelper {
@@ -62,6 +62,15 @@ export class ApiHelper {
       data,
     });
     logger.info(`POST create user response: ${response.status()}`);
+    return response;
+  }
+
+  async updateUser(id: number, data: UpdateUserRequest): Promise<APIResponse> {
+    logger.info(`Updating user ${id}: ${data.username} (roleId: ${data.userRoleId})`);
+    const response = await this.request.put(`${this.url(API_ROUTES.adminUsers)}/${id}`, {
+      data,
+    });
+    logger.info(`PUT update user response: ${response.status()}`);
     return response;
   }
 
