@@ -123,3 +123,22 @@ export interface UserRoleOption {
   displayName: string;
   isAssignable: boolean;
 }
+
+export interface ApiJobTitle {
+  id: number;
+  title: string;
+  description?: string | null;
+  note?: string | null;
+}
+
+export interface CreateJobTitleRequest {
+  title: string;
+  description?: string;
+  note?: string;
+}
+
+export interface UpdateJobTitleRequest {
+  title: string;
+  description?: string;
+  note?: string;
+}

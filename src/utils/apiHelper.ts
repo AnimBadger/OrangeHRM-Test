@@ -1,7 +1,12 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
 import { Environment } from '@config/environment';
 import { API_ROUTES } from '@data/constants';
-import type { CreateUserRequest, UpdateUserRequest } from '@typedefs/index';
+import type {
+  CreateUserRequest,
+  UpdateUserRequest,
+  CreateJobTitleRequest,
+  UpdateJobTitleRequest,
+} from '@typedefs/index';
 import logger from './logger';
 
 export class ApiHelper {
@@ -89,6 +94,46 @@ export class ApiHelper {
       `${this.url(API_ROUTES.adminUsersValidate)}?userName=${username}`,
     );
     logger.info(`Username validation response: ${response.status()}`);
+    return response;
+  }
+
+  async getJobTitles(activeOnly?: boolean): Promise<APIResponse> {
+    logger.info('Fetching job titles');
+    const params = activeOnly !== undefined ? `?activeOnly=${activeOnly}` : '';
+    const response = await this.request.get(`${this.url(API_ROUTES.adminJobTitles)}${params}`);
+    logger.info(`GET job titles response: ${response.status()}`);
+    return response;
+  }
+
+  async getJobTitle(id: number): Promise<APIResponse> {
+    logger.info(`Fetching job title ${id}`);
+    const response = await this.request.get(`${this.url(API_ROUTES.adminJobTitles)}/${id}`);
+    logger.info(`GET job title ${id} response: ${response.status()}`);
+    return response;
+  }
+
+  async createJobTitle(data: CreateJobTitleRequest): Promise<APIResponse> {
+    logger.info(`Creating job title: ${data.title}`);
+    const response = await this.request.post(this.url(API_ROUTES.adminJobTitles), { data });
+    logger.info(`POST create job title response: ${response.status()}`);
+    return response;
+  }
+
+  async updateJobTitle(id: number, data: UpdateJobTitleRequest): Promise<APIResponse> {
+    logger.info(`Updating job title ${id}: ${data.title}`);
+    const response = await this.request.put(`${this.url(API_ROUTES.adminJobTitles)}/${id}`, {
+      data,
+    });
+    logger.info(`PUT update job title response: ${response.status()}`);
+    return response;
+  }
+
+  async deleteJobTitles(ids: number[]): Promise<APIResponse> {
+    logger.info(`Deleting job titles: [${ids.join(', ')}]`);
+    const response = await this.request.delete(this.url(API_ROUTES.adminJobTitles), {
+      data: { ids },
+    });
+    logger.info(`DELETE job titles response: ${response.status()}`);
     return response;
   }
 }

@@ -64,10 +64,12 @@ export const BREADCRUMBS: Record<string, { module: string; level?: string }> = {
 export const API_ROUTES = {
   adminUsers: '/web/index.php/api/v2/admin/users',
   adminUsersValidate: '/web/index.php/api/v2/admin/validation/user-name',
+  adminJobTitles: '/web/index.php/api/v2/admin/job-titles',
 };
 
 export const MESSAGES = {
   invalidCredentials: 'Invalid credentials',
   requiredField: 'Required',
+  alreadyExists: 'Already exists',
   resetEmailSent: 'A reset password link has been sent to you via email.',
 };
