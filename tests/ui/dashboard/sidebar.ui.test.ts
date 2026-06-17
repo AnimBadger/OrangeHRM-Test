@@ -1,12 +1,6 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 
 test.describe('Dashboard Sidebar Branding @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('sidebar header is visible', async ({ dashboardPage }) => {
     await expect(dashboardPage.sidebarHeader).toBeVisible();
   });
@@ -26,11 +20,6 @@ test.describe('Dashboard Sidebar Branding @ui', () => {
 });
 
 test.describe('Dashboard Sidebar @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('all sidebar menu items are displayed with correct labels', async ({ dashboardPage }) => {
     const texts = await dashboardPage.getSidebarMenuTexts();
     const expected = Object.keys(dashboardPage.getSidebarMenuRoutes());

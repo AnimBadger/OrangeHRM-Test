@@ -1,13 +1,7 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 import { ROUTES } from '@data/constants';
 
 test.describe('Dashboard Profile @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('profile image is displayed in the header', async ({ dashboardPage }) => {
     const isVisible = await dashboardPage.isProfileImageVisible();
     expect(isVisible).toBe(true);
@@ -63,11 +57,6 @@ test.describe('Dashboard Profile @ui', () => {
 });
 
 test.describe('User Dropdown Actions @ui', () => {
-  test.beforeEach(async ({ loginPage, dashboardPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('about modal displays company info', async ({ dashboardPage }) => {
     await dashboardPage.clickAbout();
 

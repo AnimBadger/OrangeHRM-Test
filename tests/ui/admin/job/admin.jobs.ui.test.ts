@@ -1,14 +1,8 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 import { DataGenerator } from '@utils/dataGenerator';
 import { ROUTES, MESSAGES } from '@data/constants';
 
 test.describe('Admin Jobs @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('top bar has job menu item', async ({ adminPage }) => {
     await adminPage.navigate();
     const menuTexts = await adminPage.getAdminMenuTexts();

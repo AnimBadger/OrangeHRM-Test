@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # runProject.sh — Run a single project. Usage: ./runProject.sh <project-name>
-# Valid projects: login, dashboard, admin, smoke, api
+# Valid projects: setup, login, dashboard, admin, smoke, api
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
@@ -10,11 +10,11 @@ cd "$ROOT_DIR"
 PROJECT="${1:-}"
 if [ -z "$PROJECT" ]; then
   echo "Usage: $0 <project-name>"
-  echo "Valid projects: login, dashboard, admin, smoke, api"
+  echo "Valid projects: setup, login, dashboard, admin, smoke, api"
   exit 1
 fi
 
-VALID_PROJECTS=("login" "dashboard" "admin" "smoke" "api")
+VALID_PROJECTS=("setup" "login" "dashboard" "admin" "smoke" "api")
 MATCH=0
 for p in "${VALID_PROJECTS[@]}"; do
   if [ "$p" = "$PROJECT" ]; then
@@ -32,10 +32,4 @@ echo "=== Cleaning previous output ==="
 rm -rf test-results allure-results playwright-report allure-report
 
 echo "=== Running project: $PROJECT ==="
-npx playwright test --project="$PROJECT" --reporter=allure-playwright,html,list
-
-echo "=== Generating Allure report ==="
-allure generate allure-results --clean --output allure-report
-
-echo "=== Opening Allure report ==="
-allure open allure-report --port 0
+npx playwright test --project="$PROJECT"

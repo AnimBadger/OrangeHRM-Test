@@ -10,3 +10,4 @@ allure-report/
 .idea/
 *.tsbuildinfo
 AGENTS.md
+.auth/

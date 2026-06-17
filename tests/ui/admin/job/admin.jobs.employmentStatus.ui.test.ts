@@ -1,14 +1,8 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
-import { AdminPage } from '@pages/AdminPage';
-import { JobsPage } from '@pages/JobsPage';
+import type { AdminPage } from '@pages/AdminPage';
+import type { JobsPage } from '@pages/JobsPage';
 
 test.describe('Admin Employment Status @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   async function navigateToEmploymentStatus(
     adminPage: AdminPage,
     jobsPage: JobsPage,
@@ -88,7 +82,7 @@ test.describe('Admin Employment Status @ui', () => {
     await navigateToEmploymentStatus(adminPage, jobsPage);
 
     const rowCount = await employmentStatusPage.getRowCount();
-    test.skip(rowCount === 0, 'no rows to verify');
+    test.skip(rowCount === 0, 'No employment status rows present');
 
     expect(await employmentStatusPage.isEditButtonVisible(0)).toBe(true);
     expect(await employmentStatusPage.isDeleteButtonVisible(0)).toBe(true);
@@ -102,7 +96,7 @@ test.describe('Admin Employment Status @ui', () => {
     await navigateToEmploymentStatus(adminPage, jobsPage);
 
     const rowCount = await employmentStatusPage.getRowCount();
-    test.skip(rowCount === 0, 'no rows to verify');
+    test.skip(rowCount === 0, 'No employment status rows present');
 
     await employmentStatusPage.clickEdit(0);
     expect(await employmentStatusPage.isEditFormDisplayed()).toBe(true);
@@ -116,7 +110,7 @@ test.describe('Admin Employment Status @ui', () => {
     await navigateToEmploymentStatus(adminPage, jobsPage);
 
     const rowCount = await employmentStatusPage.getRowCount();
-    test.skip(rowCount === 0, 'no rows to verify');
+    test.skip(rowCount === 0, 'No employment status rows present');
 
     await employmentStatusPage.clickEdit(0);
     expect(await employmentStatusPage.isEditFormDisplayed()).toBe(true);

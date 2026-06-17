@@ -1,15 +1,9 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 import { DataGenerator } from '@utils/dataGenerator';
 import type { CreateUserRequest } from '@typedefs/index';
 import type { AdminPage } from '@pages/AdminPage';
 
 test.describe('Admin Page @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('page loads with correct header and breadcrumb', async ({ adminPage }) => {
     await adminPage.navigate();
     const loaded = await adminPage.isAdminPageLoaded();
@@ -49,11 +43,6 @@ test.describe('Admin Page @ui', () => {
 });
 
 test.describe('Admin Search Filters @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('search by username and role returns matching results', async ({ adminPage }) => {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
@@ -150,11 +139,6 @@ test.describe('Admin Search Filters @ui', () => {
 });
 
 test.describe('Admin Edit and Delete @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('each row has edit and delete action buttons', async ({ adminPage }) => {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
@@ -234,11 +218,6 @@ test.describe('Admin Edit User - Save Changes @ui', () => {
     const createRes = await authenticatedApiHelper.createUser(createData);
     const createBody = await createRes.json();
     testUserId = createBody.data.id;
-  });
-
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
   });
 
   test.afterAll(async ({ authenticatedApiHelper }) => {

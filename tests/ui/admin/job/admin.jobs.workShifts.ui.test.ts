@@ -1,14 +1,8 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
-import { AdminPage } from '@pages/AdminPage';
-import { JobsPage } from '@pages/JobsPage';
+import type { AdminPage } from '@pages/AdminPage';
+import type { JobsPage } from '@pages/JobsPage';
 
 test.describe('Admin Work Shifts @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   async function navigateToWorkShifts(adminPage: AdminPage, jobsPage: JobsPage): Promise<void> {
     await adminPage.navigate();
     await expect(adminPage.adminHeader).toBeVisible();

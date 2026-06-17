@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 import { DataGenerator } from '@utils/dataGenerator';
 
 type AdminPage = {
@@ -10,11 +9,6 @@ type AdminPage = {
 };
 
 test.describe('Admin Add User @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   async function getFirstEmployeeName(adminPage: AdminPage): Promise<string> {
     await adminPage.navigate();
     await adminPage.loadSystemUsers();
