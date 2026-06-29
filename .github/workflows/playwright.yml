@@ -17,10 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.59.1
-    strategy:
-      matrix:
-        project: [chromium, firefox, webkit]
-      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
@@ -50,21 +46,21 @@ jobs:
         run: npx playwright install-deps ${{ matrix.project }}
 
       - name: Run Playwright tests
-        run: npx playwright test --project=${{ matrix.project }}
+        run: npx playwright test
         env:
           HEADLESS: true
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report
           path: playwright-report/
           retention-days: 7
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.project }}
+          name: test-results
           path: test-results/
           retention-days: 7
 
