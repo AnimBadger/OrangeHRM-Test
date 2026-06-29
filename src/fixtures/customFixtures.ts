@@ -8,6 +8,10 @@ import { PayGradesPage } from '@pages/PayGradesPage';
 import { EmploymentStatusPage } from '@pages/EmploymentStatusPage';
 import { JobCategoriesPage } from '@pages/JobCategoriesPage';
 import { WorkShiftsPage } from '@pages/WorkShiftsPage';
+import { OrganizationPage } from '@pages/OrganizationPage';
+import { LocationsPage } from '@pages/LocationsPage';
+import { GeneralInfoPage } from '@pages/GeneralInfoPage';
+import { StructurePage } from '@pages/StructurePage';
 import { ApiHelper } from '@utils/apiHelper';
 import { Environment } from '@config/environment';
 import logger from '@utils/logger';
@@ -22,6 +26,10 @@ type Pages = {
   employmentStatusPage: EmploymentStatusPage;
   jobCategoriesPage: JobCategoriesPage;
   workShiftsPage: WorkShiftsPage;
+  organizationPage: OrganizationPage;
+  locationsPage: LocationsPage;
+  generalInfoPage: GeneralInfoPage;
+  structurePage: StructurePage;
 };
 
 type Api = {
@@ -77,6 +85,26 @@ export const test = base.extend<Pages & Api & AuthFixtures>({
   workShiftsPage: async ({ page }, use) => {
     const workShiftsPage = new WorkShiftsPage(page);
     await use(workShiftsPage);
+  },
+
+  organizationPage: async ({ page }, use) => {
+    const organizationPage = new OrganizationPage(page);
+    await use(organizationPage);
+  },
+
+  locationsPage: async ({ page }, use) => {
+    const locationsPage = new LocationsPage(page);
+    await use(locationsPage);
+  },
+
+  generalInfoPage: async ({ page }, use) => {
+    const generalInfoPage = new GeneralInfoPage(page);
+    await use(generalInfoPage);
+  },
+
+  structurePage: async ({ page }, use) => {
+    const structurePage = new StructurePage(page);
+    await use(structurePage);
   },
 
   apiHelper: async ({ request }, use) => {

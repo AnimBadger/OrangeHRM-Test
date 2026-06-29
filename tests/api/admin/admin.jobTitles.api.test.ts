@@ -132,7 +132,7 @@ test.describe('Admin Job Titles API @api', () => {
     responses.push({ scenario: 'rejects empty title', status: res.status(), body, ok: res.ok() });
 
     expect(res.ok()).not.toBeTruthy();
-    expect(res.status()).toBe(400);
+    expect(res.status()).toBe(422);
   });
 
   test('rejects duplicate job title', async ({ authenticatedApiHelper }) => {

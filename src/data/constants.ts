@@ -23,6 +23,9 @@ export const ROUTES = {
   adminEmploymentStatus: '/web/index.php/admin/employmentStatus',
   adminJobCategories: '/web/index.php/admin/jobCategory',
   adminWorkShifts: '/web/index.php/admin/workShift',
+  adminOrganizationGeneralInfo: '/web/index.php/admin/viewOrganizationGeneralInformation',
+  adminLocations: '/web/index.php/admin/locations',
+  adminOrganizationStructure: '/web/index.php/admin/viewOrganizationStructure',
 };
 
 export const SIDEBAR_MENU_ITEMS: Record<string, string> = {

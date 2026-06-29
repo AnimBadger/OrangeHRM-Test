@@ -73,11 +73,5 @@ export default defineConfig({
       dependencies: ['login'],
       use: browserConfig,
     },
-    {
-      name: 'api',
-      testMatch: ['api/**'],
-      dependencies: ['setup'],
-      use: browserConfig,
-    },
   ],
 });

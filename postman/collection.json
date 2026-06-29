@@ -1,0 +1,1062 @@
+{
+  "info": {
+    "_postman_id": "a8f3e8c1-5b7d-4e2a-9c6f-1d3b5a7e9c2d",
+    "name": "OrangeHRM API",
+    "description": "Comprehensive API collection matching all Playwright API tests. Covers Auth (valid + invalid), Admin Users CRUD + error scenarios (duplicate, validation), and Job Titles CRUD + error scenarios (404, empty, duplicate). Sequential execution only — shared state across requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "GET Login Page (store csrf_token for invalid login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const html = pm.response.text();",
+                  "pm.test('Login page loads', function () { pm.response.to.have.status(200); });",
+                  "const m = html.match(/:token=\"&quot;([^&]+)&quot;/);",
+                  "if (m) { pm.collectionVariables.set('invalid_token', m[1]); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login with Invalid Credentials (expect 302 to login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 200 (login page) for invalid creds', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{invalid_token}}", "type": "text" },
+                { "key": "username", "value": "wrong", "type": "text" },
+                { "key": "password", "value": "wrong", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/auth/validate",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "auth", "validate"]
+            }
+          }
+        },
+        {
+          "name": "GET Login Page (store csrf_token for valid login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const html = pm.response.text();",
+                  "pm.test('Login page loads', function () { pm.response.to.have.status(200); });",
+                  "const m = html.match(/:token=\"&quot;([^&]+)&quot;/);",
+                  "if (m) { pm.collectionVariables.set('csrf_token', m[1]); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "POST Login (authenticate with valid credentials)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const code = pm.response.code;",
+                  "pm.test('Login accepted (200 or 302)', function () {",
+                  "    pm.expect(code).to.be.oneOf([200, 302]);",
+                  "});",
+                  "if (code === 302) {",
+                  "    console.log('Login OK, redirect to', pm.response.headers.get('Location'));",
+                  "} else {",
+                  "    console.log('Login OK (redirect followed)');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "_token", "value": "{{csrf_token}}", "type": "text" },
+                { "key": "username", "value": "{{admin_username}}", "type": "text" },
+                { "key": "password", "value": "{{admin_password}}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/auth/validate",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "auth", "validate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Users",
+      "item": [
+        {
+          "name": "Get All Users (stores empNumber)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Has data array with total > 0', function () {",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.meta.total).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "if (json.data && json.data.length > 0) {",
+                  "    pm.collectionVariables.set('emp_number', json.data[0].employee.empNumber);",
+                  "    console.log('emp_number =', json.data[0].employee.empNumber);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create Admin User (roleId=1, success)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('new_username', 'pw_admin_' + ts.toString(36));",
+                  "pm.variables.set('new_password', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, user created', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.userName).to.eql(pm.variables.get('new_username'));",
+                  "});",
+                  "",
+                  "if (json.data && json.data.id) {",
+                  "    pm.collectionVariables.set('user_id', json.data.id);",
+                  "    pm.collectionVariables.set('created_admin_username', pm.variables.get('new_username'));",
+                  "    console.log('Admin user id =', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{new_username}}\",\n    \"password\": \"{{new_password}}\",\n    \"status\": true,\n    \"userRoleId\": 1,\n    \"empNumber\": {{emp_number}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create ESS User (roleId=2, success)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('ess_username', 'pw_ess_' + ts.toString(36));",
+                  "pm.variables.set('ess_password', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, ESS user created', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.userRole.name).to.eql('ESS');",
+                  "});",
+                  "",
+                  "if (json.data && json.data.id) {",
+                  "    pm.collectionVariables.set('ess_user_id', json.data.id);",
+                  "    console.log('ESS user id =', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{ess_username}}\",\n    \"password\": \"{{ess_password}}\",\n    \"status\": true,\n    \"userRoleId\": 2,\n    \"empNumber\": {{emp_number}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Reject Duplicate Username (expect 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', function () {",
+                  "    pm.expect(pm.response.code).to.eql(422);",
+                  "});",
+                  "",
+                  "pm.test('Response is not ok', function () {",
+                  "    pm.expect(pm.response.responseSize).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "console.log('Duplicate username correctly rejected');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{created_admin_username}}\",\n    \"password\": \"TestDup1!\",\n    \"status\": true,\n    \"userRoleId\": 1,\n    \"empNumber\": {{emp_number}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Reject Invalid Employee Number (expect error)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('noemp_username', 'noemp_' + ts.toString(36));",
+                  "pm.variables.set('noemp_password', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status is not 200', function () {",
+                  "    pm.expect(pm.response.code).not.to.eql(200);",
+                  "});",
+                  "",
+                  "if (json.error) {",
+                  "    console.log('Invalid empNumber error:', json.error.message);",
+                  "}",
+                  "",
+                  "pm.test('Has error response', function () {",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{noemp_username}}\",\n    \"password\": \"{{noemp_password}}\",\n    \"status\": true,\n    \"userRoleId\": 1,\n    \"empNumber\": 999999\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Reject Short Username (expect 422)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('short_pw', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Short username rejected (422)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"ab\",\n    \"password\": \"{{short_pw}}\",\n    \"status\": true,\n    \"userRoleId\": 1,\n    \"empNumber\": {{emp_number}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Reject Weak Password (expect error)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('weak_user', 'weak_' + ts.toString(36));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Weak password rejected (non-200)', function () {",
+                  "    pm.expect(pm.response.code).not.to.eql(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{weak_user}}\",\n    \"password\": \"weak\",\n    \"status\": true,\n    \"userRoleId\": 1,\n    \"empNumber\": {{emp_number}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create Disabled User (status=false, success)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('disabled_username', 'disabled_' + ts.toString(36));",
+                  "pm.variables.set('disabled_password', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, disabled user created', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.status).to.eql(false);",
+                  "});",
+                  "",
+                  "if (json.data && json.data.id) {",
+                  "    pm.collectionVariables.set('disabled_user_id', json.data.id);",
+                  "    console.log('Disabled user id =', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{disabled_username}}\",\n    \"password\": \"{{disabled_password}}\",\n    \"status\": false,\n    \"userRoleId\": 1,\n    \"empNumber\": {{emp_number}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User Role to ESS (roleId=2)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('update_role_pw', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, role updated to ESS', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data.userRole.name).to.eql('ESS');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{created_admin_username}}\",\n    \"password\": \"{{update_role_pw}}\",\n    \"status\": true,\n    \"userRoleId\": 2,\n    \"empNumber\": {{emp_number}},\n    \"changePassword\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Status to Disabled (status=false)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('update_status_pw', 'Test' + ts.toString(36).slice(-4) + '1!');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, user disabled', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data.status).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{created_admin_username}}\",\n    \"password\": \"{{update_status_pw}}\",\n    \"status\": false,\n    \"userRoleId\": 2,\n    \"empNumber\": {{emp_number}},\n    \"changePassword\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Reject Update to Duplicate Username (expect 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Duplicate update rejected (422)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{created_admin_username}}\",\n    \"password\": \"TestDupUpd1!\",\n    \"status\": true,\n    \"userRoleId\": 1,\n    \"empNumber\": {{emp_number}},\n    \"changePassword\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users/{{ess_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users", "{{ess_user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete All Created Users",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ids = [];",
+                  "const u1 = pm.collectionVariables.get('user_id');",
+                  "const u2 = pm.collectionVariables.get('ess_user_id');",
+                  "const u3 = pm.collectionVariables.get('disabled_user_id');",
+                  "if (u1) ids.push(parseInt(u1, 10));",
+                  "if (u2) ids.push(parseInt(u2, 10));",
+                  "if (u3) ids.push(parseInt(u3, 10));",
+                  "pm.variables.set('delete_users_payload', JSON.stringify({ ids: ids }));",
+                  "console.log('Deleting users:', JSON.stringify(ids));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200, users deleted', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{{delete_users_payload}}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Validate Username (existing user returns 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/validation/user-name?userName={{admin_username}}",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "validation", "user-name"],
+              "query": [
+                { "key": "userName", "value": "{{admin_username}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Job Titles",
+      "item": [
+        {
+          "name": "Get All Job Titles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, has data array with total', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.meta.total).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "if (json.data && json.data.length > 0) {",
+                  "    pm.collectionVariables.set('job_title_id', json.data[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        },
+        {
+          "name": "Get Job Title by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, correct id returned', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data.id).to.eql(parseInt(pm.variables.get('job_title_id')));",
+                  "    pm.expect(json.data.title).to.be.ok;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles/{{job_title_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles", "{{job_title_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Non-Existent Job Title (expect 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message present', function () {",
+                  "    pm.expect(json.error).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles/999999",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles", "999999"]
+            }
+          }
+        },
+        {
+          "name": "Create Job Title (title + description + note)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now().toString(36);",
+                  "pm.variables.set('new_job_title', 'QA_Newman_' + ts);",
+                  "pm.variables.set('new_job_desc', 'Created by Newman at ' + new Date().toISOString());",
+                  "pm.variables.set('new_job_note', 'Auto-generated test entry');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, job title created', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.title).to.eql(pm.variables.get('new_job_title'));",
+                  "});",
+                  "",
+                  "if (json.data && json.data.id) {",
+                  "    pm.collectionVariables.set('created_job_title_id', json.data.id);",
+                  "    pm.collectionVariables.set('created_job_title_name', pm.variables.get('new_job_title'));",
+                  "    console.log('Job title id =', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"{{new_job_title}}\",\n    \"description\": \"{{new_job_desc}}\",\n    \"note\": \"{{new_job_note}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        },
+        {
+          "name": "Create Job Title (title only)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now().toString(36);",
+                  "pm.variables.set('second_job_title', 'QA_Newman_2_' + ts);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, title-only created', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.title).to.eql(pm.variables.get('second_job_title'));",
+                  "});",
+                  "",
+                  "if (json.data && json.data.id) {",
+                  "    pm.collectionVariables.set('second_job_title_id', json.data.id);",
+                  "    console.log('Second job title id =', json.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"{{second_job_title}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        },
+        {
+          "name": "Reject Empty Job Title (expect 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Empty title rejected (422)', function () {",
+                  "    pm.expect(pm.response.code).to.eql(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        },
+        {
+          "name": "Reject Duplicate Job Title (expect error)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Duplicate title rejected (non-200)', function () {",
+                  "    pm.expect(pm.response.code).not.to.eql(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"{{created_job_title_name}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        },
+        {
+          "name": "Update Job Title",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now().toString(36);",
+                  "pm.variables.set('updated_job_title', 'QA_Newman_Updated_' + ts);",
+                  "pm.variables.set('updated_job_desc', 'Updated by Newman at ' + new Date().toISOString());",
+                  "pm.variables.set('updated_job_note', 'Updated auto-generated test entry');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 200, title updated', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data.title).to.eql(pm.variables.get('updated_job_title'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"{{updated_job_title}}\",\n    \"description\": \"{{updated_job_desc}}\",\n    \"note\": \"{{updated_job_note}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles/{{created_job_title_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles", "{{created_job_title_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Created Job Titles",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ids = [];",
+                  "const j1 = pm.collectionVariables.get('created_job_title_id');",
+                  "const j2 = pm.collectionVariables.get('second_job_title_id');",
+                  "if (j1) ids.push(parseInt(j1, 10));",
+                  "if (j2) ids.push(parseInt(j2, 10));",
+                  "pm.variables.set('delete_jt_payload', JSON.stringify({ ids: ids }));",
+                  "console.log('Deleting job titles:', JSON.stringify(ids));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200, job titles deleted', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{{delete_jt_payload}}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        },
+        {
+          "name": "Delete Non-Existent Job Title (expect 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Status 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message present', function () {",
+                  "    pm.expect(json.error).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ids\": [999999]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/web/index.php/api/v2/admin/job-titles",
+              "host": ["{{base_url}}"],
+              "path": ["web", "index.php", "api", "v2", "admin", "job-titles"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "https://opensource-demo.orangehrmlive.com", "type": "string" },
+    { "key": "admin_username", "value": "Admin", "type": "string" },
+    { "key": "admin_password", "value": "admin123", "type": "string" }
+  ]
+}

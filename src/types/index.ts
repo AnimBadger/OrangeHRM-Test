@@ -142,3 +142,25 @@ export interface UpdateJobTitleRequest {
   description?: string;
   note?: string;
 }
+
+export interface Location {
+  name: string;
+  country: string;
+  city?: string;
+  address?: string;
+  zipCode?: string;
+  phone?: string;
+  fax?: string;
+  notes?: string;
+}
+
+export interface GeneralInfo {
+  organizationName: string;
+  taxId?: string;
+  registrationNumber?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  address?: string;
+  note?: string;
+}
