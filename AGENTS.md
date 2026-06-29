@@ -124,6 +124,7 @@ import logger from '@utils/logger';
   - `feat_` — new features (not tests)
   - `refactor_` — code restructuring
   - `chore_` — config, deps, tooling
+- One type per branch — never mix test, fix, feat, or chore commits on the same branch. If a branch touches both tests and CI config, split into `test_` and `fix_`/`chore_` branches
 - Commit messages: concise, focus on why not what
 - Never commit secrets, `.env`, credentials, or test-results
 - AGENTS.md is gitignored — it is an internal AI instruction file, not project documentation
