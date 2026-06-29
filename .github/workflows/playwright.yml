@@ -1,13 +1,18 @@
-name: Playwright Tests
+name: Test Suite
 
 on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
 
 env:
   BASE_URL: https://opensource-demo.orangehrmlive.com
 
 jobs:
-  test:
+  ui:
+    name: Playwright UI Tests
     timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
@@ -46,4 +51,30 @@ jobs:
         with:
           name: test-results-${{ matrix.project }}
           path: test-results/
+          retention-days: 7
+
+  api:
+    name: Newman API Tests
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Newman API tests
+        run: npx newman run postman/collection.json -e postman/env.json -r cli,htmlextra --reporter-htmlextra-export test-results/newman-report.html
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-report
+          path: test-results/newman-report.html
           retention-days: 7
