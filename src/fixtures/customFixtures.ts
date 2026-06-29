@@ -12,6 +12,8 @@ import { OrganizationPage } from '@pages/OrganizationPage';
 import { LocationsPage } from '@pages/LocationsPage';
 import { GeneralInfoPage } from '@pages/GeneralInfoPage';
 import { StructurePage } from '@pages/StructurePage';
+import { QualificationsPage } from '@pages/QualificationsPage';
+import { SkillsPage } from '@pages/SkillsPage';
 import { ApiHelper } from '@utils/apiHelper';
 import { Environment } from '@config/environment';
 import logger from '@utils/logger';
@@ -30,6 +32,8 @@ type Pages = {
   locationsPage: LocationsPage;
   generalInfoPage: GeneralInfoPage;
   structurePage: StructurePage;
+  qualificationsPage: QualificationsPage;
+  skillsPage: SkillsPage;
 };
 
 type Api = {
@@ -105,6 +109,16 @@ export const test = base.extend<Pages & Api & AuthFixtures>({
   structurePage: async ({ page }, use) => {
     const structurePage = new StructurePage(page);
     await use(structurePage);
+  },
+
+  qualificationsPage: async ({ page }, use) => {
+    const qualificationsPage = new QualificationsPage(page);
+    await use(qualificationsPage);
+  },
+
+  skillsPage: async ({ page }, use) => {
+    const skillsPage = new SkillsPage(page);
+    await use(skillsPage);
   },
 
   apiHelper: async ({ request }, use) => {
