@@ -8,6 +8,10 @@ import { PayGradesPage } from '@pages/PayGradesPage';
 import { EmploymentStatusPage } from '@pages/EmploymentStatusPage';
 import { JobCategoriesPage } from '@pages/JobCategoriesPage';
 import { WorkShiftsPage } from '@pages/WorkShiftsPage';
+import { OrganizationPage } from '@pages/OrganizationPage';
+import { LocationsPage } from '@pages/LocationsPage';
+import { GeneralInfoPage } from '@pages/GeneralInfoPage';
+import { StructurePage } from '@pages/StructurePage';
 import { ApiHelper } from '@utils/apiHelper';
 import { Environment } from '@config/environment';
 import logger from '@utils/logger';
@@ -22,10 +26,15 @@ type Pages = {
   employmentStatusPage: EmploymentStatusPage;
   jobCategoriesPage: JobCategoriesPage;
   workShiftsPage: WorkShiftsPage;
+  organizationPage: OrganizationPage;
+  locationsPage: LocationsPage;
+  generalInfoPage: GeneralInfoPage;
+  structurePage: StructurePage;
 };
 
 type Api = {
   apiHelper: ApiHelper;
+  authenticatedApiHelper: ApiHelper;
 };
 
 type AuthFixtures = {
@@ -78,8 +87,39 @@ export const test = base.extend<Pages & Api & AuthFixtures>({
     await use(workShiftsPage);
   },
 
+  organizationPage: async ({ page }, use) => {
+    const organizationPage = new OrganizationPage(page);
+    await use(organizationPage);
+  },
+
+  locationsPage: async ({ page }, use) => {
+    const locationsPage = new LocationsPage(page);
+    await use(locationsPage);
+  },
+
+  generalInfoPage: async ({ page }, use) => {
+    const generalInfoPage = new GeneralInfoPage(page);
+    await use(generalInfoPage);
+  },
+
+  structurePage: async ({ page }, use) => {
+    const structurePage = new StructurePage(page);
+    await use(structurePage);
+  },
+
   apiHelper: async ({ request }, use) => {
     const apiHelper = new ApiHelper(request);
+    await use(apiHelper);
+  },
+
+  authenticatedApiHelper: async ({ request }, use) => {
+    const apiHelper = new ApiHelper(request);
+    const { username, password } = Environment.adminCredentials;
+    const loginRes = await apiHelper.loginAndFollowRedirect(username, password);
+    if (!loginRes.ok()) {
+      throw new Error(`API auth setup failed: ${loginRes.status()} ${loginRes.url()}`);
+    }
+    logger.info('Authenticated API helper fixture ready');
     await use(apiHelper);
   },
 

@@ -1,14 +1,8 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 import { DataGenerator } from '@utils/dataGenerator';
-import { ROUTES } from '@data/constants';
+import { ROUTES, MESSAGES } from '@data/constants';
 
 test.describe('Admin Jobs @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('top bar has job menu item', async ({ adminPage }) => {
     await adminPage.navigate();
     const menuTexts = await adminPage.getAdminMenuTexts();
@@ -189,5 +183,91 @@ test.describe('Admin Jobs @ui', () => {
     await jobsPage.clickCancel();
     expect(await jobsPage.isPageLoaded()).toBe(true);
     expect(await jobsPage.isAddButtonVisible()).toBe(true);
+  });
+
+  test('edit job title successfully updates the record', async ({ jobsPage, adminPage }) => {
+    const originalTitle = `QA_${DataGenerator.generateRandomString(6)}`;
+    const updatedTitle = `QA_${DataGenerator.generateRandomString(6)}`;
+
+    await adminPage.navigate();
+    await expect(adminPage.adminHeader).toBeVisible();
+    await jobsPage.clickAdminMenuItem('Job');
+    await jobsPage.clickJobSubMenuItem('Job Titles');
+
+    await jobsPage.clickAdd();
+    await jobsPage.addJobTitle({ title: originalTitle });
+
+    const addMsg = await jobsPage.getSuccessMessage();
+    expect(addMsg).toBeTruthy();
+
+    await jobsPage.navigateFromAdmin();
+
+    const rowIndex = await jobsPage.findJobInTableByTitle(originalTitle);
+    expect(rowIndex).toBeGreaterThanOrEqual(0);
+
+    await jobsPage.clickEdit(rowIndex);
+    expect(await jobsPage.isEditFormDisplayed()).toBe(true);
+
+    await jobsPage.fillJobTitle(updatedTitle);
+    await jobsPage.clickSave();
+
+    const editMsg = await jobsPage.getSuccessMessage();
+    expect(editMsg).toBeTruthy();
+
+    await jobsPage.navigateFromAdmin();
+
+    const updatedRowIndex = await jobsPage.findJobInTableByTitle(updatedTitle);
+    expect(updatedRowIndex).toBeGreaterThanOrEqual(0);
+  });
+
+  test('delete job title removes it from the table', async ({ jobsPage, adminPage }) => {
+    const title = `QA_${DataGenerator.generateRandomString(6)}`;
+
+    await adminPage.navigate();
+    await expect(adminPage.adminHeader).toBeVisible();
+    await jobsPage.clickAdminMenuItem('Job');
+    await jobsPage.clickJobSubMenuItem('Job Titles');
+
+    await jobsPage.clickAdd();
+    await jobsPage.addJobTitle({ title });
+
+    const addMsg = await jobsPage.getSuccessMessage();
+    expect(addMsg).toBeTruthy();
+
+    await jobsPage.navigateFromAdmin();
+
+    const rowIndex = await jobsPage.findJobInTableByTitle(title);
+    expect(rowIndex).toBeGreaterThanOrEqual(0);
+
+    await jobsPage.clickDelete(rowIndex);
+
+    const delMsg = await jobsPage.getSuccessMessage();
+    expect(delMsg).toBeTruthy();
+
+    await jobsPage.navigateFromAdmin();
+
+    const deletedRowIndex = await jobsPage.findJobInTableByTitle(title);
+    expect(deletedRowIndex).toBe(-1);
+  });
+
+  test('duplicate job title shows already exists error', async ({ jobsPage, adminPage }) => {
+    const title = `QA_${DataGenerator.generateRandomString(6)}`;
+
+    await adminPage.navigate();
+    await expect(adminPage.adminHeader).toBeVisible();
+    await jobsPage.clickAdminMenuItem('Job');
+    await jobsPage.clickJobSubMenuItem('Job Titles');
+
+    await jobsPage.clickAdd();
+    await jobsPage.addJobTitle({ title });
+
+    const addMsg = await jobsPage.getSuccessMessage();
+    expect(addMsg).toBeTruthy();
+
+    await jobsPage.navigateFromAdmin();
+    await jobsPage.clickAdd();
+    await jobsPage.addJobTitle({ title });
+
+    await expect(jobsPage.page.getByText(MESSAGES.alreadyExists)).toBeVisible();
   });
 });

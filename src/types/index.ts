@@ -56,3 +56,111 @@ export interface WorkShift {
   from?: string;
   to?: string;
 }
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  status: boolean;
+  userRoleId: number;
+  empNumber: number;
+}
+
+export interface UpdateUserRequest {
+  username: string;
+  password?: string;
+  status: boolean;
+  userRoleId: number;
+  empNumber: number;
+  changePassword: boolean;
+}
+
+export interface ApiUser {
+  id: number;
+  userName: string;
+  deleted: boolean;
+  status: boolean;
+  employee: {
+    empNumber: number;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
+    employeeId?: string;
+    terminationId?: number | null;
+  };
+  userRole: {
+    id: number;
+    name: string;
+    displayName: string;
+  };
+}
+
+export interface ApiListResponse<T> {
+  data: T[];
+  meta: { total: number };
+  rels: string[];
+}
+
+export interface ApiSingleResponse<T> {
+  data: T;
+}
+
+export interface ApiErrorDetail {
+  field?: string;
+  message: string;
+}
+
+export interface ApiErrorResponse {
+  error?: {
+    status: string;
+    message: string;
+  };
+  errors?: ApiErrorDetail[];
+}
+
+export interface UserRoleOption {
+  id: number;
+  name: string;
+  displayName: string;
+  isAssignable: boolean;
+}
+
+export interface ApiJobTitle {
+  id: number;
+  title: string;
+  description?: string | null;
+  note?: string | null;
+}
+
+export interface CreateJobTitleRequest {
+  title: string;
+  description?: string;
+  note?: string;
+}
+
+export interface UpdateJobTitleRequest {
+  title: string;
+  description?: string;
+  note?: string;
+}
+
+export interface Location {
+  name: string;
+  country: string;
+  city?: string;
+  address?: string;
+  zipCode?: string;
+  phone?: string;
+  fax?: string;
+  notes?: string;
+}
+
+export interface GeneralInfo {
+  organizationName: string;
+  taxId?: string;
+  registrationNumber?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  address?: string;
+  note?: string;
+}

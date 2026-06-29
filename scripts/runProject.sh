@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # runProject.sh — Run a single project. Usage: ./runProject.sh <project-name>
-# Valid projects: login, dashboard, admin, smoke, api
+# Valid projects: setup, login, dashboard, admin, smoke, newman
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
@@ -10,11 +10,11 @@ cd "$ROOT_DIR"
 PROJECT="${1:-}"
 if [ -z "$PROJECT" ]; then
   echo "Usage: $0 <project-name>"
-  echo "Valid projects: login, dashboard, admin, smoke, api"
+  echo "Valid projects: setup, login, dashboard, admin, smoke, newman"
   exit 1
 fi
 
-VALID_PROJECTS=("login" "dashboard" "admin" "smoke" "api")
+VALID_PROJECTS=("setup" "login" "dashboard" "admin" "smoke" "newman")
 MATCH=0
 for p in "${VALID_PROJECTS[@]}"; do
   if [ "$p" = "$PROJECT" ]; then
@@ -24,18 +24,18 @@ for p in "${VALID_PROJECTS[@]}"; do
 done
 if [ "$MATCH" -eq 0 ]; then
   echo "Invalid project: $PROJECT"
-  echo "Valid projects: login, dashboard, admin, smoke, api"
+  echo "Valid projects: setup, login, dashboard, admin, smoke, newman"
   exit 1
 fi
 
 echo "=== Cleaning previous output ==="
 rm -rf test-results allure-results playwright-report allure-report
 
+if [ "$PROJECT" = "newman" ]; then
+  echo "=== Running Newman: OrangeHRM API Collection ==="
+  npx newman run "$ROOT_DIR/postman/collection.json" -e "$ROOT_DIR/postman/env.json"
+  exit 0
+fi
+
 echo "=== Running project: $PROJECT ==="
-npx playwright test --project="$PROJECT" --reporter=allure-playwright,html,list
-
-echo "=== Generating Allure report ==="
-allure generate allure-results --clean --output allure-report
-
-echo "=== Opening Allure report ==="
-allure open allure-report --port 0
+npx playwright test --project="$PROJECT"

@@ -1,12 +1,6 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { validCredentials } from '@data/users';
 
 test.describe('Sidebar Search @ui', () => {
-  test.beforeEach(async ({ loginPage }) => {
-    await loginPage.navigate();
-    await loginPage.login(validCredentials.username, validCredentials.password);
-  });
-
   test('search input is visible', async ({ dashboardPage }) => {
     await expect(dashboardPage.searchInput).toBeVisible();
   });

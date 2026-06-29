@@ -23,6 +23,9 @@ export const ROUTES = {
   adminEmploymentStatus: '/web/index.php/admin/employmentStatus',
   adminJobCategories: '/web/index.php/admin/jobCategory',
   adminWorkShifts: '/web/index.php/admin/workShift',
+  adminOrganizationGeneralInfo: '/web/index.php/admin/viewOrganizationGeneralInformation',
+  adminLocations: '/web/index.php/admin/locations',
+  adminOrganizationStructure: '/web/index.php/admin/viewOrganizationStructure',
 };
 
 export const SIDEBAR_MENU_ITEMS: Record<string, string> = {
@@ -61,8 +64,15 @@ export const BREADCRUMBS: Record<string, { module: string; level?: string }> = {
   Dashboard: { module: 'Dashboard' },
 };
 
+export const API_ROUTES = {
+  adminUsers: '/web/index.php/api/v2/admin/users',
+  adminUsersValidate: '/web/index.php/api/v2/admin/validation/user-name',
+  adminJobTitles: '/web/index.php/api/v2/admin/job-titles',
+};
+
 export const MESSAGES = {
   invalidCredentials: 'Invalid credentials',
   requiredField: 'Required',
+  alreadyExists: 'Already exists',
   resetEmailSent: 'A reset password link has been sent to you via email.',
 };
