@@ -26,6 +26,10 @@ export const ROUTES = {
   adminOrganizationGeneralInfo: '/web/index.php/admin/viewOrganizationGeneralInformation',
   adminLocations: '/web/index.php/admin/locations',
   adminOrganizationStructure: '/web/index.php/admin/viewOrganizationStructure',
+  adminSkills: '/web/index.php/admin/viewSkills',
+  adminEducation: '/web/index.php/admin/viewEducation',
+  adminLicenses: '/web/index.php/admin/viewLicenses',
+  adminLanguages: '/web/index.php/admin/viewLanguages',
 };
 
 export const SIDEBAR_MENU_ITEMS: Record<string, string> = {
