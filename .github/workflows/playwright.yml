@@ -12,7 +12,7 @@ env:
 
 jobs:
   ui:
-    name: Playwright UI Tests
+    name: Playwright UI Tests (${{ matrix.project }})
     timeout-minutes: 30
     runs-on: ubuntu-latest
     container:
@@ -44,6 +44,10 @@ jobs:
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install ${{ matrix.project }}
+
+      - name: Install system deps (always needed for cached browsers)
+        if: steps.cache-playwright.outputs.cache-hit == 'true'
+        run: npx playwright install-deps ${{ matrix.project }}
 
       - name: Run Playwright tests
         run: npx playwright test --project=${{ matrix.project }}
