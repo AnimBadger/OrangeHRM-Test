@@ -94,6 +94,16 @@ export class LoginPage extends BasePage {
     return this.getText(this.errorMessage);
   }
 
+  async getRequiredFieldErrors(): Promise<string[]> {
+    const count = await this.requiredFieldErrors.count();
+    const messages: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const text = await this.requiredFieldErrors.nth(i).innerText();
+      messages.push(text.trim());
+    }
+    return messages;
+  }
+
   async isLoginPageDisplayed(): Promise<boolean> {
     return this.isVisible(this.orangeHrmLogo);
   }
