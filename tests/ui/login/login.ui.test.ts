@@ -27,4 +27,46 @@ test.describe('Login @ui', () => {
     const error = await loginPage.getErrorMessage();
     expect(error).toBe(MESSAGES.invalidCredentials);
   });
+
+  test.describe('input validation @ui', () => {
+    test.beforeEach(async ({ loginPage }) => {
+      await loginPage.navigate();
+    });
+
+    test('submitting without username shows field error', async ({ loginPage }) => {
+      await loginPage.fill(loginPage.passwordInput, 'somePassword123');
+      await loginPage.click(loginPage.loginButton);
+
+      const errors = await loginPage.getRequiredFieldErrors();
+      expect(errors.length).toBeGreaterThan(0);
+    });
+
+    test('submitting without password shows field error', async ({ loginPage }) => {
+      await loginPage.fill(loginPage.usernameInput, 'Admin');
+      await loginPage.click(loginPage.loginButton);
+
+      const errors = await loginPage.getRequiredFieldErrors();
+      expect(errors.length).toBeGreaterThan(0);
+    });
+
+    test('single char username should show minimum length validation', async ({ loginPage }) => {
+      await loginPage.fill(loginPage.usernameInput, 'a');
+      await loginPage.fill(loginPage.passwordInput, 'Admin123');
+      await loginPage.click(loginPage.loginButton);
+      await loginPage.waitForLoaderToDisappear();
+
+      const errors = await loginPage.getRequiredFieldErrors();
+      expect(errors.some((e) => /at least|minimum|should have/i.test(e))).toBe(true);
+    });
+
+    test('single char password should show minimum length validation', async ({ loginPage }) => {
+      await loginPage.fill(loginPage.usernameInput, 'Admin');
+      await loginPage.fill(loginPage.passwordInput, 'a');
+      await loginPage.click(loginPage.loginButton);
+      await loginPage.waitForLoaderToDisappear();
+
+      const errors = await loginPage.getRequiredFieldErrors();
+      expect(errors.some((e) => /at least|minimum|should have/i.test(e))).toBe(true);
+    });
+  });
 });
