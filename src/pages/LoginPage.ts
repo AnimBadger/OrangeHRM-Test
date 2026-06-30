@@ -32,6 +32,7 @@ export class LoginPage extends BasePage {
   readonly resetPasswordButton: Locator;
   readonly cancelButton: Locator;
   readonly resetSuccessMessage: Locator;
+  readonly resetSuccessHeader: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -49,9 +50,8 @@ export class LoginPage extends BasePage {
     );
     this.resetPasswordButton = page.locator('button[type="submit"]');
     this.cancelButton = page.locator('button:has-text("Cancel")');
-    this.resetSuccessMessage = page
-      .locator('.oxd-text--p')
-      .filter({ hasText: MESSAGES.resetEmailSent });
+    this.resetSuccessMessage = page.getByText(MESSAGES.resetEmailSent);
+    this.resetSuccessHeader = page.locator('h6:has-text("Reset Password link sent successfully")');
 
     this.socialLinks = [
       new SocialLink(
@@ -139,12 +139,6 @@ export class LoginPage extends BasePage {
     logger.info(`Submitting forgot password for username: ${username}`);
     await this.fill(this.resetUsernameInput, username);
     await this.click(this.resetPasswordButton);
-  }
-
-  async submitForgotPasswordWithoutWait(username: string): Promise<void> {
-    logger.info(`Submitting forgot password (no wait) for username: ${username}`);
-    await this.fill(this.resetUsernameInput, username);
-    await this.page.locator('button[type="submit"]').click({ noWaitAfter: true });
   }
 
   async clickCancel(): Promise<void> {
