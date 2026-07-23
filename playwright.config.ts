@@ -52,7 +52,7 @@ export default defineConfig({
     {
       name: 'dashboard',
       testMatch: ['ui/dashboard/**'],
-      dependencies: ['setup'],
+      dependencies: ['login'],
       use: {
         ...browserConfig,
         storageState: '.auth/user.json',
@@ -61,7 +61,7 @@ export default defineConfig({
     {
       name: 'admin',
       testMatch: ['ui/admin/**'],
-      dependencies: ['setup'],
+      dependencies: ['dashboard'],
       use: {
         ...browserConfig,
         storageState: '.auth/user.json',
@@ -70,7 +70,7 @@ export default defineConfig({
     {
       name: 'smoke',
       testMatch: ['**/smoke/*'],
-      dependencies: ['login'],
+      dependencies: ['admin'],
       use: browserConfig,
     },
   ],

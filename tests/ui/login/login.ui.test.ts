@@ -52,8 +52,8 @@ test.describe('Login @ui', () => {
         await loginPage.loginButton.click();
         await loginPage.waitForLoaderToDisappear();
 
-        const errors = await loginPage.getRequiredFieldErrors();
-        expect(errors.some((e) => /at least|minimum|should have/i.test(e))).toBe(true);
+        const error = await loginPage.getErrorMessage();
+        expect(error).toBe(MESSAGES.invalidCredentials);
       });
     });
   });

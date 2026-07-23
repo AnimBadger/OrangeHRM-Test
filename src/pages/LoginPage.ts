@@ -32,6 +32,7 @@ export class LoginPage extends BasePage {
   readonly resetPasswordButton: Locator;
   readonly cancelButton: Locator;
   readonly resetSuccessMessage: Locator;
+  readonly resetSuccessHeading: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -49,6 +50,7 @@ export class LoginPage extends BasePage {
     );
     this.resetPasswordButton = page.locator('button[type="submit"]');
     this.cancelButton = page.locator('button:has-text("Cancel")');
+    this.resetSuccessHeading = page.locator(`h6:has-text("${LABELS.resetLinkSent}")`);
     this.resetSuccessMessage = page
       .locator('.oxd-text--p')
       .filter({ hasText: MESSAGES.resetEmailSent });

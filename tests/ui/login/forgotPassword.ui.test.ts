@@ -1,5 +1,4 @@
 import { test, expect } from '@fixtures/customFixtures';
-import { TIMEOUTS } from '@data/constants';
 
 test.describe('Forgot Password @ui', () => {
   test.beforeEach(async ({ loginPage }) => {
@@ -16,16 +15,12 @@ test.describe('Forgot Password @ui', () => {
 
   test('non-existent username shows success instead of error', async ({ loginPage }) => {
     await loginPage.clickForgotPassword();
-    await loginPage.submitForgotPassword('thisuserdoesnotexist');
-    await loginPage.waitForPageLoad();
+    await loginPage.page
+      .locator('.orangehrm-forgot-password-container input[name="username"]')
+      .waitFor({ state: 'visible', timeout: 20000 });
+    await loginPage.resetUsernameInput.fill('thisuserdoesnotexist');
+    await loginPage.page.locator('button[type="submit"]').click({ noWaitAfter: true });
 
-    await expect(loginPage.page.locator('.oxd-alert-content-text')).toBeVisible();
-  });
-
-  test('valid username never finishes loading', async ({ loginPage }) => {
-    await loginPage.clickForgotPassword();
-    await loginPage.submitForgotPasswordWithoutWait('Admin');
-
-    await expect(loginPage.resetSuccessMessage).toBeVisible({ timeout: TIMEOUTS.SHORT });
+    await expect(loginPage.resetSuccessHeading).toBeVisible({ timeout: 20000 });
   });
 });

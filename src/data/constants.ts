@@ -30,6 +30,7 @@ export const ROUTES = {
   adminEducation: '/web/index.php/admin/viewEducation',
   adminLicenses: '/web/index.php/admin/viewLicenses',
   adminLanguages: '/web/index.php/admin/viewLanguages',
+  adminCorporateBranding: '/web/index.php/admin/brandingConfiguration',
 };
 
 export const SIDEBAR_MENU_ITEMS: Record<string, string> = {
